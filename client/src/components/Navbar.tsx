@@ -26,8 +26,16 @@ export const Navbar = () => {
           isScrolled ? 'bg-dark/95 backdrop-blur-sm py-3 shadow-md' : 'bg-transparent py-5'
       }`}>
         <div className="container-custom flex items-center justify-between">
-          <Link to="/" className="font-serif text-xl md:text-2xl text-white">
+          {/* Logo + Brand Name */}
+          <Link to="/" className="flex items-center space-x-3">
+            <img
+                src="/logo.png"
+                alt="L'Auberge Espagnole Logo"
+                className="h-10 w-auto"
+            />
+            <span className="font-serif text-xl md:text-2xl text-white">
             L'Auberge Espagnole
+          </span>
           </Link>
 
           <div className="hidden md:flex items-center space-x-8">
