@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Navbar } from '../../components/Navbar';
 import { CartContext } from '../../contexts/CartContext';
 import { CartConfirmationModal } from '../../components/CartConfirmationModal';
+import { Info, Package, Truck, Phone } from 'lucide-react';
 
 interface Category {
   id: number;
@@ -14,6 +15,7 @@ interface Product {
   name: string;
   description: string;
   price: number;
+  stock: number;
   image: string | null;
   category: {
     name: string;
@@ -70,6 +72,10 @@ export const BoutiquePage = () => {
   };
 
   const handleAddToCart = (product: Product) => {
+    if (product.stock === 0) {
+      alert('Désolé, ce produit est en rupture de stock');
+      return;
+    }
     addToCart(product);
     setAddedProduct(product);
     setShowCartModal(true);
@@ -89,12 +95,35 @@ export const BoutiquePage = () => {
     ...categories.map(c => ({ id: c.id, name: c.name, label: c.name }))
   ];
 
+  const getStockBadge = (stock: number) => {
+    if (stock === 0) {
+      return (
+          <span className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">
+          Rupture de stock
+        </span>
+      );
+    } else if (stock <= 3) {
+      return (
+          <span className="px-2 py-1 bg-orange-500 text-white text-xs font-bold rounded">
+          Plus que {stock} disponible{stock > 1 ? 's' : ''}
+        </span>
+      );
+    } else {
+      return (
+          <span className="px-2 py-1 bg-green-600 text-white text-xs font-bold rounded">
+          {stock} en stock
+        </span>
+      );
+    }
+  };
+
   return (
       <div className="min-h-screen bg-[#1E1B18] text-white">
         <Navbar />
 
         <div className="pt-24 pb-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Page Header */}
             <div className="mb-12 text-center">
               <h1 className="font-serif text-4xl md:text-5xl text-white mb-4">
                 Notre Boutique
@@ -103,6 +132,51 @@ export const BoutiquePage = () => {
               <p className="text-gray-400 max-w-2xl mx-auto">
                 Découvrez notre sélection de produits espagnols d'exception
               </p>
+            </div>
+
+            {/* Info Banner */}
+            <div className="mb-8 space-y-4">
+              {/* Delivery Info */}
+              <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
+                <div className="flex items-start space-x-4">
+                  <Truck className="text-blue-400 flex-shrink-0 mt-1" size={28} />
+                  <div className="flex-1">
+                    <h3 className="font-serif text-xl text-white mb-3">
+                      Livraison Locale & Personnalisée
+                    </h3>
+                    <div className="space-y-2 text-sm text-blue-200">
+                      <p className="flex items-start space-x-2">
+                        <Info size={16} className="flex-shrink-0 mt-0.5" />
+                        <span>
+                        <strong>Montant minimum de commande:</strong> 50€ pour la livraison gratuite
+                      </span>
+                      </p>
+                      <p className="flex items-start space-x-2">
+                        <Package size={16} className="flex-shrink-0 mt-0.5" />
+                        <span>
+                        <strong>Zone de livraison standard:</strong> 15 km autour de Metz (codes postaux: 57000, 57050, 57070, 57140, 57150, 57160, 57170)
+                      </span>
+                      </p>
+                      <p className="flex items-start space-x-2">
+                        <Phone size={16} className="flex-shrink-0 mt-0.5" />
+                        <span>
+                        <strong>Commande importante hors zone?</strong> Pas de problème! Contactez-nous pour les commandes supérieures à 150€ et nous étudierons ensemble la possibilité d'une livraison exceptionnelle.
+                      </span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stock Info */}
+              <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
+                <div className="flex items-center space-x-3">
+                  <Info className="text-amber-400" size={20} />
+                  <p className="text-sm text-amber-200">
+                    <strong>Stock limité:</strong> Nos produits sont préparés artisanalement. Les quantités disponibles sont mises à jour en temps réel.
+                  </p>
+                </div>
+              </div>
             </div>
 
             {isLoading ? (
@@ -151,11 +225,20 @@ export const BoutiquePage = () => {
                           {filteredProducts.map((product) => (
                               <div
                                   key={product.id}
-                                  className="bg-[#2C2C2C] rounded-lg overflow-hidden shadow-lg border border-transparent hover:border-[#Cca43b] transition-all duration-300"
+                                  className={`bg-[#2C2C2C] rounded-lg overflow-hidden shadow-lg border transition-all duration-300 ${
+                                      product.stock === 0
+                                          ? 'border-red-500/50 opacity-75'
+                                          : 'border-transparent hover:border-[#Cca43b]'
+                                  }`}
                               >
                                 <div className="h-48 overflow-hidden relative">
                                   <div className="absolute top-2 left-2 bg-[#Cca43b] text-[#1E1B18] text-xs font-bold px-2 py-0.5 rounded z-10 uppercase">
                                     {product.category?.name || 'Gourmet'}
+                                  </div>
+
+                                  {/* Stock Badge */}
+                                  <div className="absolute top-2 right-2 z-10">
+                                    {getStockBadge(product.stock)}
                                   </div>
 
                                   <img
@@ -170,8 +253,8 @@ export const BoutiquePage = () => {
                                     {product.name}
                                   </h3>
 
-                                  <div className="flex justify-between items-center mb-4">
-                                    <p className="text-gray-400 text-sm line-clamp-2" title={product.description}>
+                                  <div className="mb-4">
+                                    <p className="text-gray-400 text-sm line-clamp-2 mb-2" title={product.description}>
                                       {product.description.length > 50
                                           ? product.description.substring(0, 50) + '...'
                                           : product.description}
@@ -183,9 +266,14 @@ export const BoutiquePage = () => {
 
                                   <button
                                       onClick={() => handleAddToCart(product)}
-                                      className="w-full py-2 border border-[#Cca43b] text-[#Cca43b] hover:bg-[#Cca43b] hover:text-black transition-colors rounded uppercase text-xs tracking-wider font-bold"
+                                      disabled={product.stock === 0}
+                                      className={`w-full py-2 border transition-colors rounded uppercase text-xs tracking-wider font-bold ${
+                                          product.stock === 0
+                                              ? 'border-gray-600 text-gray-600 cursor-not-allowed'
+                                              : 'border-[#Cca43b] text-[#Cca43b] hover:bg-[#Cca43b] hover:text-black'
+                                      }`}
                                   >
-                                    Ajouter au Panier
+                                    {product.stock === 0 ? 'Rupture de Stock' : 'Ajouter au Panier'}
                                   </button>
                                 </div>
                               </div>
