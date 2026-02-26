@@ -1,34 +1,66 @@
-node_modules
-/client/node_modules
-/server/node_modules
-/dist
-/build
-/out
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
 
+# Build outputs
+dist/
+build/
+out/
+client/dist/
+client/build/
+server/dist/
+server/build/
 
-.idea/
-.vscode/
-*.iml
+# Database
+*.db
+*.db-journal
+postgres_data/
 
+# Docker volumes
+postgres_data/
 
+# Environment variables
 .env
 .env.local
+.env.production
 .env.*.local
 *.env
+server/.env
+client/.env
 
+# Prisma
+server/prisma/migrations/
 
+# Uploads
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 pnpm-lock.yaml
 
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
 
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
 
-client/build
-client/dist
-server/build
-server/dist
+# Testing
+coverage/
+.nyc_output/
 
-
-/uploads/
+# Temporary files
+*.tmp
+*.temp
