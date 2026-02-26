@@ -8,6 +8,7 @@ import { BoutiquePage } from './pages/shop/BoutiquePage';
 import { CartPage } from './pages/shop/CartPage';
 import { AddProductPage } from './pages/admin/AddProductPage';
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
+import { ManageFeaturedPage } from './pages/admin/ManageFeaturedPage';
 import { ManageProductsPage } from './pages/admin/ManageProductsPage';
 import { UsersPage } from './pages/admin/UsersPage';
 import { OrdersPage } from './pages/admin/OrdersPage';
@@ -87,6 +88,10 @@ export const AppRouter: React.FC = () => {
                     <OrdersPage />
                 </AdminRouteProtector>
             } />
+
+            <Route path="/admin/featured" element=
+                {<ManageFeaturedPage />} />
+
 
             <Route path="/admin/users" element={
                 <AdminRouteProtector>

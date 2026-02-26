@@ -59,3 +59,14 @@ model Product {
   category    Category @relation(fields: [categoryId], references: [id])
   createdAt   DateTime @default(now())
 }
+
+model FeaturedProduct {
+  id        Int      @id @default(autoincrement())
+  title     String
+  category  String
+  image     String
+  position  Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
