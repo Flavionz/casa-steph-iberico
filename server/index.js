@@ -9,6 +9,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/orders');
+const { sendOrderReadyEmail, sendOrderDeliveredEmail } = require('./services/emailService');
 
 const app = express();
 const prisma = new PrismaClient();
@@ -287,6 +288,165 @@ app.delete('/api/featured/:id', async (req, res) => {
     } catch (error) {
         console.error('Failed to delete featured product:', error);
         res.status(500).json({ error: 'Erreur lors de la suppression' });
+    }
+});
+
+app.get('/api/orders/admin/all', async (req, res) => {
+    try {
+        const { status } = req.query;
+        const where = status && status !== 'all' ? { status } : {};
+
+        const orders = await prisma.order.findMany({
+            where,
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        email: true,
+                        firstName: true,
+                        lastName: true,
+                        phone: true
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        res.json(orders);
+    } catch (error) {
+        console.error('Failed to fetch orders:', error);
+        res.status(500).json({ error: 'Erreur lors de la récupération des commandes' });
+    }
+});
+
+app.get('/api/orders/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const order = await prisma.order.findUnique({
+            where: { id: parseInt(id) },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        email: true,
+                        firstName: true,
+                        lastName: true,
+                        phone: true,
+                        address: true,
+                        city: true,
+                        postalCode: true
+                    }
+                }
+            }
+        });
+
+        if (!order) {
+            return res.status(404).json({ error: 'Commande non trouvée' });
+        }
+
+        res.json(order);
+    } catch (error) {
+        console.error('Failed to fetch order:', error);
+        res.status(500).json({ error: 'Erreur lors de la récupération' });
+    }
+});
+
+app.put('/api/orders/:id/status', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        const validStatuses = ['en_attente', 'en_preparation', 'pret_pour_livraison', 'livre', 'annule'];
+
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ error: 'Statut invalide' });
+        }
+
+        const order = await prisma.order.update({
+            where: { id: parseInt(id) },
+            data: {
+                status,
+                updatedAt: new Date()
+            },
+            include: {
+                user: true
+            }
+        });
+
+        res.json({
+            ...order,
+            message: 'Statut mis à jour avec succès'
+        });
+    } catch (error) {
+        console.error('Failed to update order status:', error);
+        res.status(500).json({ error: 'Erreur lors de la mise à jour' });
+    }
+});
+
+app.put('/api/orders/:id/delivery', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { deliveryTimeSlot, deliveryDate } = req.body;
+
+        if (!deliveryTimeSlot || !deliveryDate) {
+            return res.status(400).json({ error: 'Créneau et date requis' });
+        }
+
+        const order = await prisma.order.update({
+            where: { id: parseInt(id) },
+            data: {
+                deliveryTimeSlot,
+                deliveryDate,
+                status: 'pret_pour_livraison',
+                updatedAt: new Date()
+            },
+            include: {
+                user: true
+            }
+        });
+
+        res.json({
+            ...order,
+            message: 'Créneau de livraison défini'
+        });
+    } catch (error) {
+        console.error('Failed to set delivery time:', error);
+        res.status(500).json({ error: 'Erreur lors de la définition du créneau' });
+    }
+});
+
+app.post('/api/orders/:id/notify', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { type } = req.body;
+
+        const order = await prisma.order.findUnique({
+            where: { id: parseInt(id) },
+            include: { user: true }
+        });
+
+        if (!order) {
+            return res.status(404).json({ error: 'Commande non trouvée' });
+        }
+
+        let result;
+        if (type === 'ready') {
+            result = await sendOrderReadyEmail(order, order.user);
+        } else if (type === 'delivered') {
+            result = await sendOrderDeliveredEmail(order, order.user);
+        } else {
+            return res.status(400).json({ error: 'Type de notification invalide' });
+        }
+
+        if (result.success) {
+            res.json({ message: 'Email envoyé avec succès' });
+        } else {
+            res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email' });
+        }
+    } catch (error) {
+        console.error('Failed to send notification:', error);
+        res.status(500).json({ error: 'Erreur lors de l\'envoi' });
     }
 });
 

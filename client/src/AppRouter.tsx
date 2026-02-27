@@ -11,7 +11,7 @@ import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { ManageFeaturedPage } from './pages/admin/ManageFeaturedPage';
 import { ManageProductsPage } from './pages/admin/ManageProductsPage';
 import { UsersPage } from './pages/admin/UsersPage';
-import { OrdersPage } from './pages/admin/OrdersPage';
+import { ManageOrdersPage } from './pages/admin/ManageOrdersPage';
 import { UserDashboard } from './pages/user/UserDashboard';
 import { UserProfile } from './pages/user/UserProfile';
 import { UserOrders } from './pages/user/UserOrders';
@@ -19,7 +19,6 @@ import { UserSettings } from './pages/user/UserSettings';
 import { UserAddress } from './pages/user/UserAddress';
 import { CheckoutPage } from './pages/shop/CheckoutPage';
 import { AboutPage } from './pages/AboutPage';
-
 
 export const AppRouter: React.FC = () => {
     return (
@@ -58,7 +57,6 @@ export const AppRouter: React.FC = () => {
 
             <Route path="/checkout" element={<CheckoutPage />} />
 
-
             <Route path="/admin/dashboard" element={
                 <AdminRouteProtector>
                     <AdminDashboardPage />
@@ -83,15 +81,17 @@ export const AppRouter: React.FC = () => {
                 </AdminRouteProtector>
             } />
 
-            <Route path="/admin/orders" element={
+            <Route path="/admin/featured" element={
                 <AdminRouteProtector>
-                    <OrdersPage />
+                    <ManageFeaturedPage />
                 </AdminRouteProtector>
             } />
 
-            <Route path="/admin/featured" element=
-                {<ManageFeaturedPage />} />
-
+            <Route path="/admin/orders" element={
+                <AdminRouteProtector>
+                    <ManageOrdersPage />
+                </AdminRouteProtector>
+            } />
 
             <Route path="/admin/users" element={
                 <AdminRouteProtector>

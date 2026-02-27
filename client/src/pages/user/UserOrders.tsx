@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { UserLayout } from '../../components/user/UserLayout';
-import { Package, Clock, CheckCircle, XCircle, ShoppingBag } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, ShoppingBag, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
@@ -11,6 +11,8 @@ interface Order {
     items: string;
     deliveryAddress: string;
     postalCode: string;
+    deliveryTimeSlot: string | null;
+    deliveryDate: string | null;
     createdAt: string;
 }
 
@@ -38,7 +40,7 @@ export const UserOrders = () => {
 
     const getStatusBadge = (status: string) => {
         switch (status) {
-            case 'pending':
+            case 'en_attente':
                 return {
                     bg: 'bg-yellow-900/20',
                     border: 'border-yellow-500',
@@ -46,20 +48,36 @@ export const UserOrders = () => {
                     label: 'En attente',
                     icon: Clock
                 };
-            case 'completed':
+            case 'en_preparation':
+                return {
+                    bg: 'bg-blue-900/20',
+                    border: 'border-blue-500',
+                    text: 'text-blue-300',
+                    label: 'En préparation',
+                    icon: Package
+                };
+            case 'pret_pour_livraison':
                 return {
                     bg: 'bg-green-900/20',
                     border: 'border-green-500',
                     text: 'text-green-300',
-                    label: 'Livrée',
+                    label: 'Prêt pour livraison',
+                    icon: Truck
+                };
+            case 'livre':
+                return {
+                    bg: 'bg-gray-900/20',
+                    border: 'border-gray-500',
+                    text: 'text-gray-300',
+                    label: 'Livré',
                     icon: CheckCircle
                 };
-            case 'cancelled':
+            case 'annule':
                 return {
                     bg: 'bg-red-900/20',
                     border: 'border-red-500',
                     text: 'text-red-300',
-                    label: 'Annulée',
+                    label: 'Annulé',
                     icon: XCircle
                 };
             default:
@@ -135,10 +153,32 @@ export const UserOrders = () => {
                                     <div className={`mt-2 md:mt-0 inline-flex items-center space-x-2 px-3 py-1 rounded-full border ${statusBadge.bg} ${statusBadge.border}`}>
                                         <StatusIcon size={16} className={statusBadge.text} />
                                         <span className={`text-sm font-medium ${statusBadge.text}`}>
-                      {statusBadge.label}
-                    </span>
+                                            {statusBadge.label}
+                                        </span>
                                     </div>
                                 </div>
+
+                                {/* Info Livraison (se disponibile) */}
+                                {order.deliveryDate && order.deliveryTimeSlot && (
+                                    <div className="bg-green-900/20 border border-green-500 rounded-lg p-4 mb-4">
+                                        <div className="flex items-center space-x-2 mb-2">
+                                            <Truck size={18} className="text-green-400" />
+                                            <p className="text-green-300 font-semibold text-sm">
+                                                Livraison programmée
+                                            </p>
+                                        </div>
+                                        <p className="text-green-200 text-sm">
+                                            📅 {new Date(order.deliveryDate).toLocaleDateString('fr-FR', {
+                                            day: 'numeric',
+                                            month: 'long',
+                                            year: 'numeric'
+                                        })}
+                                        </p>
+                                        <p className="text-green-200 text-sm">
+                                            🕐 {order.deliveryTimeSlot}
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div className="border-t border-gray-700 pt-4 mt-4">
                                     <p className="text-sm text-gray-400 mb-2">Articles ({items.length})</p>
