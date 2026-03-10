@@ -234,7 +234,11 @@ export const ManageOrdersPage = () => {
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                             {orders.map((order) => {
-                                const config = statusConfig[order.status as keyof typeof statusConfig];
+                                const config = statusConfig[order.status as keyof typeof statusConfig] || {
+                                    label: order.status,
+                                    color: 'bg-gray-500',
+                                    icon: Package
+                                };
                                 const Icon = config.icon;
                                 return (
                                     <tr key={order.id} className="hover:bg-gray-50">

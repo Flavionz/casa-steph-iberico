@@ -19,6 +19,9 @@ import { UserSettings } from './pages/user/UserSettings';
 import { UserAddress } from './pages/user/UserAddress';
 import { CheckoutPage } from './pages/shop/CheckoutPage';
 import { AboutPage } from './pages/AboutPage';
+import { OrderConfirmationPage } from './pages/shop/OrderConfirmationPage';
+
+
 
 export const AppRouter: React.FC = () => {
     return (
@@ -41,6 +44,10 @@ export const AppRouter: React.FC = () => {
                 <FrontendLayout>
                     <CartPage />
                 </FrontendLayout>
+            } />
+
+            <Route path="/order-confirmation" element={
+                <OrderConfirmationPage />
             } />
 
             <Route path="/about" element={

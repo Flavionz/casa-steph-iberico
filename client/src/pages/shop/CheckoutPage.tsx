@@ -65,7 +65,12 @@ export const CheckoutPage = () => {
         try {
             const token = localStorage.getItem('authToken');
             const orderData = {
-                items: cartItems,
+                items: JSON.stringify(cartItems.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price
+                }))),
                 total: cartTotal,
                 deliveryAddress: `${deliveryData.address}, ${deliveryData.city}`,
                 postalCode: deliveryData.postalCode,
@@ -80,8 +85,28 @@ export const CheckoutPage = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
+            navigate('/order-confirmation', {
+                state: {
+                    orderData: {
+                        orderId: response.data.id,
+                        total: cartTotal,
+                        items: cartItems.map(item => ({
+                            id: item.id,
+                            name: item.name,
+                            quantity: item.quantity,
+                            price: item.price
+                        })),
+                        deliveryAddress: `${deliveryData.address}, ${deliveryData.city}`,
+                        postalCode: deliveryData.postalCode,
+                        phone: deliveryData.phone,
+                        paymentMethod: deliveryData.paymentMethod
+                    }
+                }
+            });
+
+            // Clear cart after successful order
             clearCart();
-            navigate('/order-confirmation', { state: { order: response.data } });
+
         } catch (error: any) {
             console.error('Order creation failed:', error);
             setError(error.response?.data?.error || 'Erreur lors de la création de la commande');
@@ -117,6 +142,7 @@ export const CheckoutPage = () => {
                     </div>
                 </div>
 
+                {/* Progress Steps */}
                 <div className="mb-12">
                     <div className="flex items-center justify-center">
                         {steps.map((step, index) => {
@@ -139,8 +165,8 @@ export const CheckoutPage = () => {
                                         <span className={`text-xs mt-2 font-medium ${
                                             isActive ? 'text-gold' : isCompleted ? 'text-green-400' : 'text-gray-500'
                                         }`}>
-                      {step.title}
-                    </span>
+                                            {step.title}
+                                        </span>
                                     </div>
                                     {index < steps.length - 1 && (
                                         <div className={`w-24 h-0.5 mx-4 ${
@@ -155,6 +181,7 @@ export const CheckoutPage = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2">
+                        {/* Step 1: Cart Review */}
                         {currentStep === 1 && (
                             <div className="space-y-6">
                                 <div className="bg-[#2C2C2C] rounded-lg p-6 border border-gray-700">
@@ -199,6 +226,7 @@ export const CheckoutPage = () => {
                             </div>
                         )}
 
+                        {/* Step 2: Delivery & Payment */}
                         {currentStep === 2 && (
                             <div className="space-y-6">
                                 <div className="bg-[#2C2C2C] rounded-lg p-6 border border-gray-700">
@@ -359,14 +387,11 @@ export const CheckoutPage = () => {
                                                     <span className="text-2xl">💳</span>
                                                     <span className="text-white font-semibold">Paiement en ligne par carte</span>
                                                     <span className="px-2 py-0.5 bg-blue-500/20 border border-blue-500 text-blue-300 text-xs rounded-full">
-                            Bientôt disponible
-                          </span>
+                                                        Bientôt disponible
+                                                    </span>
                                                 </div>
                                                 <p className="text-sm text-gray-400">
                                                     Visa, Mastercard, American Express
-                                                </p>
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    Paiement sécurisé • Confirmation immédiate
                                                 </p>
                                             </div>
                                         </label>
@@ -375,6 +400,7 @@ export const CheckoutPage = () => {
                             </div>
                         )}
 
+                        {/* Step 3: Confirmation */}
                         {currentStep === 3 && (
                             <div className="space-y-6">
                                 <div className="bg-[#2C2C2C] rounded-lg p-6 border border-gray-700">
@@ -416,34 +442,17 @@ export const CheckoutPage = () => {
                                         <h2 className="text-2xl font-serif text-white">Mode de Paiement</h2>
                                     </div>
 
-                                    {deliveryData.paymentMethod === 'cash' ? (
-                                        <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
-                                            <div className="flex items-center space-x-2 mb-2">
-                                                <span className="text-2xl">💶</span>
-                                                <p className="text-green-300 text-sm font-semibold">
-                                                    Paiement à la livraison
-                                                </p>
-                                            </div>
-                                            <p className="text-xs text-green-400">
-                                                Vous pourrez régler en espèces ou par carte bancaire lors de la livraison.
+                                    <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+                                        <div className="flex items-center space-x-2 mb-2">
+                                            <span className="text-2xl">💶</span>
+                                            <p className="text-green-300 text-sm font-semibold">
+                                                Paiement à la livraison
                                             </p>
                                         </div>
-                                    ) : (
-                                        <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
-                                            <div className="flex items-center space-x-2 mb-2">
-                                                <span className="text-2xl">💳</span>
-                                                <p className="text-blue-300 text-sm font-semibold">
-                                                    Paiement en ligne par carte
-                                                </p>
-                                                <span className="px-2 py-0.5 bg-blue-500/20 border border-blue-500 text-blue-300 text-xs rounded-full">
-                          Bientôt disponible
-                        </span>
-                                            </div>
-                                            <p className="text-xs text-blue-400">
-                                                Paiement sécurisé via Stripe • Visa, Mastercard, American Express
-                                            </p>
-                                        </div>
-                                    )}
+                                        <p className="text-xs text-green-400">
+                                            Vous pourrez régler en espèces ou par carte bancaire lors de la livraison.
+                                        </p>
+                                    </div>
                                 </div>
 
                                 {error && (
@@ -455,6 +464,7 @@ export const CheckoutPage = () => {
                         )}
                     </div>
 
+                    {/* Sidebar Summary */}
                     <div className="lg:col-span-1">
                         <div className="bg-[#2C2C2C] rounded-lg p-6 border border-gray-700 sticky top-24">
                             <h3 className="font-serif text-xl text-white mb-4 pb-4 border-b border-gray-700">
