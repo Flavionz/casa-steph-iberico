@@ -292,6 +292,60 @@ app.delete('/api/featured/:id', authenticate, isAdmin, async (req, res) => {
     }
 });
 
+app.get('/api/admin/stats', authenticate, isAdmin, async (req, res) => {
+    try {
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        const [
+            totalProducts,
+            pendingOrders,
+            monthlySalesResult,
+            newUsersThisMonth,
+            lowStockProducts,
+            recentOrders,
+        ] = await Promise.all([
+            prisma.product.count(),
+            prisma.order.count({ where: { status: 'en_attente' } }),
+            prisma.order.aggregate({
+                _sum: { total: true },
+                where: {
+                    createdAt: { gte: startOfMonth },
+                    status: { not: 'annule' },
+                },
+            }),
+            prisma.user.count({
+                where: {
+                    createdAt: { gte: startOfMonth },
+                    role: 'user',
+                },
+            }),
+            prisma.product.count({ where: { stock: { lte: 5 } } }),
+            prisma.order.findMany({
+                take: 5,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    user: {
+                        select: { email: true, firstName: true, lastName: true },
+                    },
+                },
+            }),
+        ]);
+
+        res.json({
+            totalProducts,
+            pendingOrders,
+            monthlySales: monthlySalesResult._sum.total ?? 0,
+            newUsersThisMonth,
+            lowStockProducts,
+            recentOrders,
+        });
+    } catch (error) {
+        console.error('Failed to fetch admin stats:', error);
+        res.status(500).json({ error: 'Erreur lors de la récupération des statistiques' });
+    }
+});
+
 app.get('/api/orders/admin/all', authenticate, isAdmin, async (req, res) => {
     try {
         const { status } = req.query;
