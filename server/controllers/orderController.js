@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 const createOrder = async (req, res) => {
     try {
-        const { items, total, deliveryAddress, postalCode, phone, notes } = req.body;
+        const { items, total, deliveryAddress, postalCode, phone, notes, paymentMethod, paymentIntentId } = req.body;
 
         if (!items || items.length === 0) {
             return res.status(400).json({ error: 'Le panier est vide' });
@@ -19,13 +19,16 @@ const createOrder = async (req, res) => {
         const order = await prisma.order.create({
             data: {
                 userId: req.user.userId,
-                status: 'pending',
+                status: 'en_attente',
                 total: parseFloat(total),
                 items: itemsString,
                 deliveryAddress,
                 postalCode,
                 phone: phone || '',
-                notes: notes || ''
+                notes: notes || '',
+                paymentMethod: paymentMethod || 'cash',
+                paymentStatus: paymentIntentId ? 'paid' : 'pending',
+                ...(paymentIntentId && { paymentIntentId }),
             }
         });
 

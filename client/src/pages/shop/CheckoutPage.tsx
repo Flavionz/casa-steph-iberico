@@ -1,9 +1,14 @@
 import { useContext, useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
 import { CartContext } from '../../contexts/CartContext';
 import { AuthContext } from '../../contexts/AuthContext';
+import { StripePaymentForm } from '../../components/checkout/StripePaymentForm';
 import { MapPin, CreditCard, Package, AlertCircle, CheckCircle, ChevronLeft, ArrowRight } from 'lucide-react';
 import axios from 'axios';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? '');
 
 const ELIGIBLE_POSTCODES = ['57000', '57050', '57070', '57140', '57150', '57160', '57170'];
 
@@ -24,6 +29,8 @@ export const CheckoutPage = () => {
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [clientSecret, setClientSecret] = useState<string | null>(null);
+    const [isLoadingPayment, setIsLoadingPayment] = useState(false);
 
     useEffect(() => {
         if (cartItems.length === 0) {
@@ -38,6 +45,84 @@ export const CheckoutPage = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setDeliveryData({ ...deliveryData, [e.target.name]: e.target.value });
         setError(null);
+    };
+
+    // Fetch Stripe clientSecret quando si raggiunge lo step 3 con pagamento carta
+    useEffect(() => {
+        if (currentStep === 3 && deliveryData.paymentMethod === 'card' && !clientSecret) {
+            const fetchClientSecret = async () => {
+                setIsLoadingPayment(true);
+                setError(null);
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const response = await axios.post(
+                        'http://localhost:3000/api/payments/create-intent',
+                        { amount: cartTotal },
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
+                    setClientSecret(response.data.clientSecret);
+                } catch {
+                    setError('Impossible de charger le formulaire de paiement. Vérifiez votre connexion.');
+                } finally {
+                    setIsLoadingPayment(false);
+                }
+            };
+            fetchClientSecret();
+        }
+    }, [currentStep, deliveryData.paymentMethod, clientSecret, cartTotal]);
+
+    // Chiamato da StripePaymentForm dopo pagamento confermato
+    const handleStripeSuccess = async (paymentIntentId: string) => {
+        setIsProcessing(true);
+        setError(null);
+        try {
+            const token = localStorage.getItem('authToken');
+            const orderData = {
+                items: JSON.stringify(cartItems.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price,
+                }))),
+                total: cartTotal,
+                deliveryAddress: `${deliveryData.address}, ${deliveryData.city}`,
+                postalCode: deliveryData.postalCode,
+                phone: deliveryData.phone,
+                notes: deliveryData.notes,
+                paymentMethod: 'card',
+                paymentIntentId,
+            };
+
+            const response = await axios.post(
+                'http://localhost:3000/api/orders/create',
+                orderData,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            clearCart();
+            navigate('/order-confirmation', {
+                state: {
+                    orderData: {
+                        orderId: response.data.order?.id ?? response.data.id,
+                        total: cartTotal,
+                        items: cartItems.map(item => ({
+                            id: item.id,
+                            name: item.name,
+                            quantity: item.quantity,
+                            price: item.price,
+                        })),
+                        deliveryAddress: `${deliveryData.address}, ${deliveryData.city}`,
+                        postalCode: deliveryData.postalCode,
+                        phone: deliveryData.phone,
+                        paymentMethod: 'card',
+                    },
+                },
+            });
+        } catch {
+            setError('Paiement réussi mais erreur lors de la création de la commande. Contactez le support.');
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const isEligible = ELIGIBLE_POSTCODES.includes(deliveryData.postalCode);
@@ -56,8 +141,8 @@ export const CheckoutPage = () => {
         setIsProcessing(true);
         setError(null);
 
+        // Il pagamento carta viene gestito da StripePaymentForm — questo handler è solo per cash
         if (deliveryData.paymentMethod === 'card') {
-            setError('Le paiement en ligne sera bientôt disponible. Veuillez choisir le paiement à la livraison.');
             setIsProcessing(false);
             return;
         }
@@ -386,8 +471,8 @@ export const CheckoutPage = () => {
                                                 <div className="flex items-center space-x-2 mb-1">
                                                     <span className="text-2xl">💳</span>
                                                     <span className="text-white font-semibold">Paiement en ligne par carte</span>
-                                                    <span className="px-2 py-0.5 bg-blue-500/20 border border-blue-500 text-blue-300 text-xs rounded-full">
-                                                        Bientôt disponible
+                                                    <span className="px-2 py-0.5 bg-green-500/20 border border-green-500 text-green-300 text-xs rounded-full">
+                                                        Disponible
                                                     </span>
                                                 </div>
                                                 <p className="text-sm text-gray-400">
@@ -437,22 +522,50 @@ export const CheckoutPage = () => {
                                 </div>
 
                                 <div className="bg-[#2C2C2C] rounded-lg p-6 border border-gray-700">
-                                    <div className="flex items-center space-x-3 mb-4">
+                                    <div className="flex items-center space-x-3 mb-5 pb-4 border-b border-gray-700">
                                         <CreditCard size={24} className="text-gold" />
                                         <h2 className="text-2xl font-serif text-white">Mode de Paiement</h2>
                                     </div>
 
-                                    <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
-                                        <div className="flex items-center space-x-2 mb-2">
-                                            <span className="text-2xl">💶</span>
-                                            <p className="text-green-300 text-sm font-semibold">
-                                                Paiement à la livraison
+                                    {/* Paiement à la livraison */}
+                                    {deliveryData.paymentMethod === 'cash' && (
+                                        <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+                                            <div className="flex items-center space-x-2 mb-2">
+                                                <span className="text-2xl">💶</span>
+                                                <p className="text-green-300 text-sm font-semibold">
+                                                    Paiement à la livraison
+                                                </p>
+                                            </div>
+                                            <p className="text-xs text-green-400">
+                                                Vous pourrez régler en espèces ou par carte bancaire lors de la livraison.
                                             </p>
                                         </div>
-                                        <p className="text-xs text-green-400">
-                                            Vous pourrez régler en espèces ou par carte bancaire lors de la livraison.
-                                        </p>
-                                    </div>
+                                    )}
+
+                                    {/* Paiement par carte — Stripe */}
+                                    {deliveryData.paymentMethod === 'card' && (
+                                        <div>
+                                            {isLoadingPayment && (
+                                                <div className="flex items-center gap-3 py-6 text-gray-400">
+                                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gold" />
+                                                    <span className="text-sm">Chargement du formulaire de paiement…</span>
+                                                </div>
+                                            )}
+                                            {!isLoadingPayment && clientSecret && (
+                                                <Elements
+                                                    stripe={stripePromise}
+                                                    options={{ clientSecret, appearance: { theme: 'night' } }}
+                                                >
+                                                    <StripePaymentForm
+                                                        clientSecret={clientSecret}
+                                                        total={cartTotal}
+                                                        onSuccess={handleStripeSuccess}
+                                                        onError={(msg) => setError(msg)}
+                                                    />
+                                                </Elements>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {error && (
@@ -499,7 +612,7 @@ export const CheckoutPage = () => {
                                     </button>
                                 )}
 
-                                {currentStep === 3 && (
+                                {currentStep === 3 && deliveryData.paymentMethod === 'cash' && (
                                     <button
                                         onClick={handleSubmit}
                                         disabled={isProcessing}

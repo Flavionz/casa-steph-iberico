@@ -38,6 +38,7 @@ model Order {
   notes            String?
   paymentMethod    String   @default("cash")
   paymentStatus    String   @default("pending")
+  paymentIntentId  String?
   deliveryTimeSlot String?
   deliveryDate     String?
   createdAt        DateTime @default(now())

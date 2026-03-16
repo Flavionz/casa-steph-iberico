@@ -9,6 +9,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/orders');
+const paymentRoutes = require('./routes/payments');
 const { sendOrderReadyEmail, sendOrderDeliveredEmail } = require('./services/emailService');
 const { authenticate, isAdmin } = require('./middleware/authMiddleware');
 
@@ -32,6 +33,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.use(cors());
+// Il webhook Stripe richiede il body raw — va registrato prima di express.json()
+app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -39,6 +42,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.get('/', (req, res) => {
     res.send('Hola! Il server Auberge Espagnol è online 🇪🇸');
