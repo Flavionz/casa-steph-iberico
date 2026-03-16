@@ -283,7 +283,8 @@ export const ManageOrdersPage = () => {
 
             {showModal && selectedOrder && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+                    {/* text-gray-900 esplicito: evita di ereditare text-white dal tema dark dell'app */}
+                    <div className="bg-white text-gray-900 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="p-6 border-b border-gray-200">
                             <div className="flex justify-between items-center">
                                 <h3 className="text-2xl font-serif text-gray-800">Commande #{selectedOrder.id}</h3>
@@ -300,17 +301,25 @@ export const ManageOrdersPage = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <h4 className="font-semibold text-gray-700 mb-2">Client</h4>
-                                    <p className="text-sm">{selectedOrder.user.firstName} {selectedOrder.user.lastName}</p>
-                                    <p className="text-sm text-gray-600">{selectedOrder.user.email}</p>
+                                    {selectedOrder.user ? (
+                                        <>
+                                            <p className="text-sm text-gray-900">
+                                                {selectedOrder.user.firstName} {selectedOrder.user.lastName}
+                                            </p>
+                                            <p className="text-sm text-gray-600">{selectedOrder.user.email}</p>
+                                        </>
+                                    ) : (
+                                        <p className="text-sm text-red-500 italic">Utilisateur supprimé</p>
+                                    )}
                                     <p className="text-sm text-gray-600">{selectedOrder.phone}</p>
                                 </div>
                                 <div>
                                     <h4 className="font-semibold text-gray-700 mb-2">Livraison</h4>
-                                    <p className="text-sm">{selectedOrder.deliveryAddress}</p>
+                                    <p className="text-sm text-gray-900">{selectedOrder.deliveryAddress}</p>
                                     <p className="text-sm text-gray-600">{selectedOrder.postalCode}</p>
                                     {selectedOrder.deliveryDate && (
                                         <p className="text-sm text-green-600 font-semibold mt-2">
-                                            📅 {selectedOrder.deliveryDate} - {selectedOrder.deliveryTimeSlot}
+                                            📅 {selectedOrder.deliveryDate} — {selectedOrder.deliveryTimeSlot}
                                         </p>
                                     )}
                                 </div>
@@ -319,13 +328,17 @@ export const ManageOrdersPage = () => {
                             <div>
                                 <h4 className="font-semibold text-gray-700 mb-2">Produits</h4>
                                 <div className="bg-gray-50 rounded p-4 space-y-2">
-                                    {parseItems(selectedOrder.items).map((item: any, idx: number) => (
-                                        <div key={idx} className="flex justify-between text-sm">
-                                            <span>{item.name} x{item.quantity}</span>
-                                            <span className="font-semibold">{(item.price * item.quantity).toFixed(2)}€</span>
-                                        </div>
-                                    ))}
-                                    <div className="border-t border-gray-300 pt-2 mt-2 flex justify-between font-bold">
+                                    {parseItems(selectedOrder.items).length === 0 ? (
+                                        <p className="text-sm text-gray-500 italic">Données produits non disponibles</p>
+                                    ) : (
+                                        parseItems(selectedOrder.items).map((item: { name: string; quantity: number; price: number }, idx: number) => (
+                                            <div key={idx} className="flex justify-between text-sm">
+                                                <span className="text-gray-800">{item.name} x{item.quantity}</span>
+                                                <span className="font-semibold text-gray-900">{(item.price * item.quantity).toFixed(2)}€</span>
+                                            </div>
+                                        ))
+                                    )}
+                                    <div className="border-t border-gray-300 pt-2 mt-2 flex justify-between font-bold text-gray-900">
                                         <span>Total</span>
                                         <span>{selectedOrder.total.toFixed(2)}€</span>
                                     </div>
@@ -335,7 +348,7 @@ export const ManageOrdersPage = () => {
                             {selectedOrder.notes && (
                                 <div>
                                     <h4 className="font-semibold text-gray-700 mb-2">Notes</h4>
-                                    <p className="text-sm bg-yellow-50 p-3 rounded border border-yellow-200">
+                                    <p className="text-sm text-gray-800 bg-yellow-50 p-3 rounded border border-yellow-200">
                                         {selectedOrder.notes}
                                     </p>
                                 </div>
@@ -392,7 +405,7 @@ export const ManageOrdersPage = () => {
 
             {showDeliveryModal && selectedOrder && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                    <div className="bg-white text-gray-900 rounded-lg shadow-xl max-w-md w-full p-6">
                         <h3 className="text-xl font-serif text-gray-800 mb-4">Définir le créneau de livraison</h3>
 
                         <div className="space-y-4">
