@@ -149,6 +149,14 @@ export const LoginPage: React.FC = () => {
               </button>
             </form>
 
+            {!isRegistering && (
+                <div className="mt-4 text-center">
+                    <Link to="/forgot-password" className="text-sm text-gray-500 hover:text-gold transition-colors">
+                        Mot de passe oublié ?
+                    </Link>
+                </div>
+            )}
+
             <div className="mt-6 text-center">
               <button
                   onClick={() => {
