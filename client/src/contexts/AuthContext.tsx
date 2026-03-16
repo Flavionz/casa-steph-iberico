@@ -29,9 +29,9 @@ export const AuthContext = createContext<AuthContextType>({
     user: null,
     isAdmin: false,
     isLoading: true,
-    login: async () => {},
-    register: async () => {},
-    logout: () => {},
+    login: async () => { throw new Error('AuthProvider non trovato'); },
+    register: async () => { throw new Error('AuthProvider non trovato'); },
+    logout: () => { throw new Error('AuthProvider non trovato'); },
 });
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {

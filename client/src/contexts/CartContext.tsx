@@ -21,10 +21,10 @@ interface CartContextType {
 
 export const CartContext = createContext<CartContextType>({
     cartItems: [],
-    addToCart: () => {},
-    removeFromCart: () => {},
-    updateQuantity: () => {},
-    clearCart: () => {},
+    addToCart: () => { throw new Error('CartProvider non trovato'); },
+    removeFromCart: () => { throw new Error('CartProvider non trovato'); },
+    updateQuantity: () => { throw new Error('CartProvider non trovato'); },
+    clearCart: () => { throw new Error('CartProvider non trovato'); },
     cartCount: 0,
     cartTotal: 0,
 });
