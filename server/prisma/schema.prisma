@@ -15,6 +15,7 @@ model User {
   email      String   @unique
   password   String
   role       String   @default("user")
+  civility   String?
   firstName  String?
   lastName   String?
   phone      String?

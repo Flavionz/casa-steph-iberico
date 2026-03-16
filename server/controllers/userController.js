@@ -11,6 +11,7 @@ const getUserProfile = async (req, res) => {
                 id: true,
                 email: true,
                 role: true,
+                civility: true,
                 firstName: true,
                 lastName: true,
                 phone: true,
@@ -34,11 +35,12 @@ const getUserProfile = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
     try {
-        const { firstName, lastName, phone, address, city, postalCode } = req.body;
+        const { civility, firstName, lastName, phone, address, city, postalCode } = req.body;
 
         const updatedUser = await prisma.user.update({
             where: { id: req.user.userId },
             data: {
+                civility,
                 firstName,
                 lastName,
                 phone,
@@ -50,6 +52,7 @@ const updateUserProfile = async (req, res) => {
                 id: true,
                 email: true,
                 role: true,
+                civility: true,
                 firstName: true,
                 lastName: true,
                 phone: true,

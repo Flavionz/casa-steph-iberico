@@ -4,6 +4,11 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { Save, User as UserIcon, PenLine, Phone } from 'lucide-react';
 import axios from 'axios';
 
+const CIVILITY_OPTIONS = [
+    { value: 'M.', label: 'M.' },
+    { value: 'Mme', label: 'Mme' },
+];
+
 export const UserProfile = () => {
     const { user, updateUser } = useContext(AuthContext);
 
@@ -11,6 +16,7 @@ export const UserProfile = () => {
 
     const [isEditing, setIsEditing] = useState(!hasProfile);
     const [formData, setFormData] = useState({
+        civility: user?.civility || '',
         firstName: user?.firstName || '',
         lastName: user?.lastName || '',
         phone: user?.phone || '',
@@ -20,6 +26,7 @@ export const UserProfile = () => {
 
     useEffect(() => {
         setFormData({
+            civility: user?.civility || '',
             firstName: user?.firstName || '',
             lastName: user?.lastName || '',
             phone: user?.phone || '',
@@ -45,9 +52,9 @@ export const UserProfile = () => {
 
             updateUser(response.data);
             setIsEditing(false);
-            setMessage({ type: 'success', text: 'Profil mis à jour avec succès' });
+            setMessage({ type: 'success', text: 'Informations mises à jour avec succès' });
         } catch {
-            setMessage({ type: 'error', text: 'Erreur lors de la mise à jour du profil' });
+            setMessage({ type: 'error', text: 'Erreur lors de la mise à jour' });
         } finally {
             setIsLoading(false);
         }
@@ -55,6 +62,7 @@ export const UserProfile = () => {
 
     const handleCancel = () => {
         setFormData({
+            civility: user?.civility || '',
             firstName: user?.firstName || '',
             lastName: user?.lastName || '',
             phone: user?.phone || '',
@@ -68,7 +76,7 @@ export const UserProfile = () => {
             <div className="space-y-6">
                 <div className="flex items-center space-x-3 pb-4 border-b border-gray-700">
                     <UserIcon size={24} className="text-gold" />
-                    <h2 className="text-2xl font-serif text-white">Informations Personnelles</h2>
+                    <h2 className="text-2xl font-serif text-white">Mes Informations</h2>
                 </div>
 
                 {message && (
@@ -81,16 +89,21 @@ export const UserProfile = () => {
                     </div>
                 )}
 
-                {/* Email — toujours visible, non modifiable */}
+                {/* Email — toujours visible */}
                 <div className="bg-gray-800/30 border border-gray-700 rounded-lg px-4 py-3">
-                    <p className="text-xs text-gray-500 mb-0.5">Email</p>
+                    <p className="text-xs text-gray-500 mb-0.5">Adresse e-mail</p>
                     <p className="text-gray-300 text-sm">{user?.email}</p>
+                    <p className="text-xs text-gray-600 mt-1">L'email ne peut pas être modifié</p>
                 </div>
 
                 {/* ── VIEW MODE ── */}
                 {!isEditing && hasProfile && (
-                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6 space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6 space-y-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <p className="text-xs text-gray-500 mb-0.5">Civilité</p>
+                                <p className="text-white font-medium">{user?.civility || '—'}</p>
+                            </div>
                             <div>
                                 <p className="text-xs text-gray-500 mb-0.5">Prénom</p>
                                 <p className="text-white font-medium">{user?.firstName}</p>
@@ -99,15 +112,15 @@ export const UserProfile = () => {
                                 <p className="text-xs text-gray-500 mb-0.5">Nom</p>
                                 <p className="text-white font-medium">{user?.lastName}</p>
                             </div>
-                            <div>
-                                <p className="text-xs text-gray-500 mb-0.5">Téléphone</p>
-                                <p className="text-white font-medium flex items-center gap-1.5">
-                                    {user?.phone
-                                        ? <><Phone size={13} className="text-gray-400" />{user.phone}</>
-                                        : <span className="text-gray-500 italic text-sm">Non renseigné</span>
-                                    }
-                                </p>
-                            </div>
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 mb-0.5">Téléphone</p>
+                            <p className="text-white font-medium flex items-center gap-1.5">
+                                {user?.phone
+                                    ? <><Phone size={13} className="text-gray-400" />{user.phone}</>
+                                    : <span className="text-gray-500 italic text-sm">Non renseigné</span>
+                                }
+                            </p>
                         </div>
 
                         <button
@@ -123,6 +136,39 @@ export const UserProfile = () => {
                 {/* ── EDIT MODE ── */}
                 {isEditing && (
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Civilité */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-3">
+                                Civilité
+                            </label>
+                            <div className="flex gap-3">
+                                {CIVILITY_OPTIONS.map(opt => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, civility: opt.value })}
+                                        className={`px-6 py-2.5 rounded-lg border text-sm font-medium transition-colors ${
+                                            formData.civility === opt.value
+                                                ? 'border-gold bg-gold/10 text-gold'
+                                                : 'border-gray-600 text-gray-400 hover:border-gray-500 hover:text-gray-300'
+                                        }`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                                {formData.civility && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, civility: '' })}
+                                        className="text-xs text-gray-500 hover:text-gray-400 px-2"
+                                    >
+                                        Effacer
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Prénom / Nom */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-300 mb-2">
@@ -156,6 +202,7 @@ export const UserProfile = () => {
                             </div>
                         </div>
 
+                        {/* Téléphone */}
                         <div>
                             <label htmlFor="phone" className="block text-sm font-medium text-gray-300 mb-2">
                                 Téléphone

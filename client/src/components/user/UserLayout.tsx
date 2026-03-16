@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { User, Package, MapPin, Settings, LogOut, Home } from 'lucide-react';
+import { User, Package, MapPin, Settings, LogOut, Home, LayoutDashboard } from 'lucide-react';
 import { AuthContext } from '../../contexts/AuthContext';
 
 interface UserLayoutProps {
@@ -13,7 +13,8 @@ export const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
     const navigate = useNavigate();
 
     const navItems = [
-        { path: '/account', label: 'Mon Compte', icon: User },
+        { path: '/account', label: 'Mon Compte', icon: LayoutDashboard },
+        { path: '/account/profile', label: 'Mes Informations', icon: User },
         { path: '/account/orders', label: 'Mes Commandes', icon: Package },
         { path: '/account/address', label: 'Mon Adresse', icon: MapPin },
         { path: '/account/settings', label: 'Paramètres', icon: Settings },
@@ -26,6 +27,12 @@ export const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
         }
     };
 
+    const displayName = user?.firstName && user?.lastName
+        ? `${user.civility ? user.civility + ' ' : ''}${user.firstName} ${user.lastName}`
+        : user?.email;
+
+    const avatarLetter = (user?.firstName || user?.email || '?').charAt(0).toUpperCase();
+
     return (
         <div className="min-h-screen bg-[#1E1B18] pt-24 pb-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,19 +44,20 @@ export const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <aside className="md:col-span-1">
                         <div className="bg-[#2C2C2C] rounded-lg p-6 border border-gray-700">
+                            {/* Avatar */}
                             <div className="flex items-center space-x-3 mb-6 pb-6 border-b border-gray-700">
-                                <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center">
-                  <span className="text-gold font-bold text-lg">
-                    {user?.email?.charAt(0).toUpperCase()}
-                  </span>
+                                <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center shrink-0">
+                                    <span className="text-gold font-bold text-lg">{avatarLetter}</span>
                                 </div>
-                                <div>
-                                    <p className="text-white font-semibold">{user?.email}</p>
-                                    <p className="text-xs text-gray-400 capitalize">{user?.role}</p>
+                                <div className="min-w-0">
+                                    <p className="text-white font-semibold text-sm truncate">{displayName}</p>
+                                    {user?.firstName && (
+                                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                                    )}
                                 </div>
                             </div>
 
-                            <nav className="space-y-2">
+                            <nav className="space-y-1">
                                 {navItems.map((item) => {
                                     const Icon = item.icon;
                                     const isActive = location.pathname === item.path;
@@ -70,7 +78,7 @@ export const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                                     );
                                 })}
 
-                                <div className="pt-4 mt-4 border-t border-gray-700">
+                                <div className="pt-4 mt-4 border-t border-gray-700 space-y-1">
                                     <Link
                                         to="/"
                                         className="flex items-center space-x-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-md transition-all"
