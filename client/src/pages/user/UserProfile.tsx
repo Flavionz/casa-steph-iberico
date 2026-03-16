@@ -5,7 +5,7 @@ import { Save, User as UserIcon } from 'lucide-react';
 import axios from 'axios';
 
 export const UserProfile = () => {
-    const { user } = useContext(AuthContext);
+    const { user, updateUser } = useContext(AuthContext);
 
     const [formData, setFormData] = useState({
         firstName: user?.firstName || '',
@@ -28,12 +28,13 @@ export const UserProfile = () => {
 
         try {
             const token = localStorage.getItem('authToken');
-            await axios.put(
+            const response = await axios.put(
                 'http://localhost:3000/api/user/profile',
                 formData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
+            updateUser(response.data);
             setMessage({ type: 'success', text: 'Profil mis à jour avec succès' });
         } catch (error) {
             setMessage({ type: 'error', text: 'Erreur lors de la mise à jour du profil' });

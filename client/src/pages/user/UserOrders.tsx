@@ -16,6 +16,17 @@ interface Order {
     createdAt: string;
 }
 
+const parseItems = (raw: string | null | undefined): { name: string; quantity: number; price: number }[] => {
+    if (!raw) return [];
+    try {
+        let parsed = JSON.parse(raw);
+        if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+};
+
 export const UserOrders = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -132,7 +143,7 @@ export const UserOrders = () => {
                     {orders.map((order) => {
                         const statusBadge = getStatusBadge(order.status);
                         const StatusIcon = statusBadge.icon;
-                        const items = JSON.parse(order.items);
+                        const items = parseItems(order.items);
 
                         return (
                             <div

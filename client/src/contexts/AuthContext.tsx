@@ -23,6 +23,7 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<void>;
     register: (email: string, password: string) => Promise<void>;
     logout: () => void;
+    updateUser: (partial: Partial<User>) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -32,6 +33,7 @@ export const AuthContext = createContext<AuthContextType>({
     login: async () => { throw new Error('AuthProvider non trovato'); },
     register: async () => { throw new Error('AuthProvider non trovato'); },
     logout: () => { throw new Error('AuthProvider non trovato'); },
+    updateUser: () => { throw new Error('AuthProvider non trovato'); },
 });
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -105,6 +107,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(null);
     };
 
+    const updateUser = (partial: Partial<User>) => {
+        setUser(prev => prev ? { ...prev, ...partial } : prev);
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -113,7 +119,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 isLoading,
                 login,
                 register,
-                logout
+                logout,
+                updateUser,
             }}
         >
             {children}

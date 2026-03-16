@@ -22,7 +22,7 @@ interface Order {
         firstName: string;
         lastName: string;
         phone: string;
-    };
+    } | null;
 }
 
 export const ManageOrdersPage = () => {
@@ -156,9 +156,13 @@ export const ManageOrdersPage = () => {
         setShowModal(true);
     };
 
-    const parseItems = (itemsString: string) => {
+    const parseItems = (raw: string | null | undefined): { name: string; quantity: number; price: number }[] => {
+        if (!raw) return [];
         try {
-            return JSON.parse(itemsString);
+            let parsed = JSON.parse(raw);
+            // Handle double-stringified JSON (frontend sent JSON.stringify, orderController also JSON.stringified)
+            if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+            return Array.isArray(parsed) ? parsed : [];
         } catch {
             return [];
         }
@@ -247,9 +251,9 @@ export const ManageOrdersPage = () => {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-medium text-gray-900">
-                                                {order.user.firstName} {order.user.lastName}
+                                                {order.user ? `${order.user.firstName ?? ''} ${order.user.lastName ?? ''}`.trim() || '—' : 'Utilisateur supprimé'}
                                             </div>
-                                            <div className="text-sm text-gray-500">{order.user.email}</div>
+                                            <div className="text-sm text-gray-500">{order.user?.email ?? '—'}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                                             {order.total.toFixed(2)}€
@@ -304,7 +308,7 @@ export const ManageOrdersPage = () => {
                                     {selectedOrder.user ? (
                                         <>
                                             <p className="text-sm text-gray-900">
-                                                {selectedOrder.user.firstName} {selectedOrder.user.lastName}
+                                                {`${selectedOrder.user.firstName ?? ''} ${selectedOrder.user.lastName ?? ''}`.trim() || '—'}
                                             </p>
                                             <p className="text-sm text-gray-600">{selectedOrder.user.email}</p>
                                         </>
@@ -331,7 +335,7 @@ export const ManageOrdersPage = () => {
                                     {parseItems(selectedOrder.items).length === 0 ? (
                                         <p className="text-sm text-gray-500 italic">Données produits non disponibles</p>
                                     ) : (
-                                        parseItems(selectedOrder.items).map((item: { name: string; quantity: number; price: number }, idx: number) => (
+                                        parseItems(selectedOrder.items).map((item, idx) => (
                                             <div key={idx} className="flex justify-between text-sm">
                                                 <span className="text-gray-800">{item.name} x{item.quantity}</span>
                                                 <span className="font-semibold text-gray-900">{(item.price * item.quantity).toFixed(2)}€</span>
