@@ -3,8 +3,8 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 // ─── Règles métier (miroir de client/src/constants/delivery.ts) ───────────────
-const ZONE_1_FREE     = ['57000', '57050', '57070', '57140', '57160'];
-const ZONE_2_FEE      = ['57150', '57170'];
+const ZONE_1_FREE     = ['57000', '57050', '57070', '57140', '57155', '57160', '57950'];
+const ZONE_2_FEE      = ['57130', '57170', '57245', '57420', '57530', '57645', '57685'];
 const ZONE_2_AMOUNT   = 5;
 const FREE_THRESHOLD  = 100;
 const MIN_CART        = 30;

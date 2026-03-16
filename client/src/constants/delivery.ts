@@ -1,7 +1,7 @@
 // ─── Règles métier livraison — L'Auberge Espagnole ───────────────────────────
 
-export const DELIVERY_ZONE_1_FREE = ['57000', '57050', '57070', '57140', '57160']; // ≤ 7 km
-export const DELIVERY_ZONE_2_FEE  = ['57150', '57170'];                             // 7-15 km
+export const DELIVERY_ZONE_1_FREE = ['57000', '57050', '57070', '57140', '57155', '57160', '57950']; // ≤ 7 km
+export const DELIVERY_ZONE_2_FEE  = ['57130', '57170', '57245', '57420', '57530', '57645', '57685']; // 7-15 km
 
 export const ALL_ELIGIBLE_POSTCODES = [...DELIVERY_ZONE_1_FREE, ...DELIVERY_ZONE_2_FEE];
 
