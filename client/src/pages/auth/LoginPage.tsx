@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { AuthContext } from '../../contexts/AuthContext';
 
 export const LoginPage: React.FC = () => {
@@ -11,6 +12,8 @@ export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -108,16 +111,26 @@ export const LoginPage: React.FC = () => {
                 <label htmlFor="password" className="block text-sm text-gray-300 mb-2 tracking-wide">
                   Mot de passe
                 </label>
-                <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    className="w-full bg-transparent border-b border-gray-600 text-white py-2 px-1 focus:outline-none focus:border-gold transition-colors duration-300"
-                    placeholder="••••••••"
-                    required
-                    disabled={isLoading}
-                />
+                <div className="relative">
+                  <input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      className="w-full bg-transparent border-b border-gray-600 text-white py-2 px-1 pr-8 focus:outline-none focus:border-gold transition-colors duration-300"
+                      placeholder="••••••••"
+                      required
+                      disabled={isLoading}
+                  />
+                  <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                      tabIndex={-1}
+                  >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
 
               {isRegistering && (
@@ -125,16 +138,26 @@ export const LoginPage: React.FC = () => {
                     <label htmlFor="confirmPassword" className="block text-sm text-gray-300 mb-2 tracking-wide">
                       Confirmer le mot de passe
                     </label>
-                    <input
-                        id="confirmPassword"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={e => setConfirmPassword(e.target.value)}
-                        className="w-full bg-transparent border-b border-gray-600 text-white py-2 px-1 focus:outline-none focus:border-gold transition-colors duration-300"
-                        placeholder="••••••••"
-                        required
-                        disabled={isLoading}
-                    />
+                    <div className="relative">
+                      <input
+                          id="confirmPassword"
+                          type={showConfirmPassword ? 'text' : 'password'}
+                          value={confirmPassword}
+                          onChange={e => setConfirmPassword(e.target.value)}
+                          className="w-full bg-transparent border-b border-gray-600 text-white py-2 px-1 pr-8 focus:outline-none focus:border-gold transition-colors duration-300"
+                          placeholder="••••••••"
+                          required
+                          disabled={isLoading}
+                      />
+                      <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300 transition-colors"
+                          tabIndex={-1}
+                      >
+                          {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
                   </div>
               )}
 

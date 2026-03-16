@@ -37,6 +37,13 @@ export const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
         <div className="min-h-screen bg-[#1E1B18] pt-24 pb-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="mb-8">
+                    <Link
+                        to="/"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-gold text-dark font-bold rounded hover:bg-gold/90 transition-colors mb-4"
+                    >
+                        <Home size={18} />
+                        Retour à l'accueil
+                    </Link>
                     <h1 className="font-serif text-4xl text-white mb-2">Mon Espace</h1>
                     <div className="w-20 h-0.5 bg-gold"></div>
                 </div>
@@ -79,13 +86,6 @@ export const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
                                 })}
 
                                 <div className="pt-4 mt-4 border-t border-gray-700 space-y-1">
-                                    <Link
-                                        to="/"
-                                        className="flex items-center space-x-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-md transition-all"
-                                    >
-                                        <Home size={18} />
-                                        <span className="text-sm">Retour à l'accueil</span>
-                                    </Link>
                                     <button
                                         onClick={handleLogout}
                                         className="w-full flex items-center space-x-3 px-4 py-3 text-gray-400 hover:text-red-400 hover:bg-red-900/10 rounded-md transition-all"
