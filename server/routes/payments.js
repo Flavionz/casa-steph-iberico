@@ -1,13 +1,22 @@
 const express = require('express');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const Stripe = require('stripe');
 const { authenticate } = require('../middleware/authMiddleware');
 
 const router = express.Router();
+
+// Inizializzazione lazy: evita il crash all'avvio se STRIPE_SECRET_KEY non è configurata
+const getStripe = () => {
+    if (!process.env.STRIPE_SECRET_KEY) {
+        throw new Error('STRIPE_SECRET_KEY non configurata nel file .env');
+    }
+    return Stripe(process.env.STRIPE_SECRET_KEY);
+};
 
 // POST /api/payments/create-intent
 // Crea un PaymentIntent Stripe e restituisce il clientSecret al frontend
 router.post('/create-intent', authenticate, async (req, res) => {
     try {
+        const stripe = getStripe();
         const { amount } = req.body;
 
         if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
@@ -42,6 +51,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), (req, res) =>
 
     let event;
     try {
+        const stripe = getStripe();
         event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     } catch (err) {
         console.error('Webhook signature verification failed:', err.message);
