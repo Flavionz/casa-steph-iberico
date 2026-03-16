@@ -198,7 +198,7 @@ export const OrderConfirmationPage = () => {
                             Une question sur votre commande ?
                         </p>
                         <p className="text-gold font-medium">
-                            Contactez-nous : contact@auberge-espagnol.fr
+                            Contactez-nous : lauberge.espagnole.metz@gmail.com
                         </p>
                     </div>
                 </div>

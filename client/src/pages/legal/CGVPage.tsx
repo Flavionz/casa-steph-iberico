@@ -122,7 +122,7 @@ export const CGVPage = () => {
                     </p>
                     <p>
                         Pour exercer ce droit, le Client doit contacter le Vendeur à l'adresse :
-                        contact@auberge-espagnol.fr en indiquant son numéro de commande.
+                        lauberge.espagnole.metz@gmail.com en indiquant son numéro de commande.
                     </p>
                 </>
             ),
@@ -138,7 +138,7 @@ export const CGVPage = () => {
                     </p>
                     <p>
                         Pour toute réclamation, le Client peut contacter le Vendeur à l'adresse email :
-                        contact@auberge-espagnol.fr. Le Vendeur s'engage à répondre dans un délai de{' '}
+                        lauberge.espagnole.metz@gmail.com. Le Vendeur s'engage à répondre dans un délai de{' '}
                         <Placeholder label="X jours ouvrés" />.
                     </p>
                 </>
@@ -150,7 +150,7 @@ export const CGVPage = () => {
                 <>
                     <p>
                         En cas de litige, le Client est invité à contacter en premier lieu le service client
-                        à l'adresse contact@auberge-espagnol.fr afin de trouver une solution amiable.
+                        à l'adresse lauberge.espagnole.metz@gmail.com afin de trouver une solution amiable.
                     </p>
                     <p>
                         En cas d'échec de cette démarche, le Client peut recourir à la médiation de la consommation.

@@ -19,7 +19,7 @@ export const MentionsLegalesPage = () => {
                         <li><span className="text-gray-400">Siège social :</span> <Placeholder label="ADRESSE COMPLÈTE" /></li>
                         <li><span className="text-gray-400">SIRET :</span> <Placeholder label="XXX XXX XXX XXXXX" /></li>
                         <li><span className="text-gray-400">Numéro de TVA intracommunautaire :</span> <Placeholder label="FR XX XXXXXXXXX" /></li>
-                        <li><span className="text-gray-400">Email :</span> contact@auberge-espagnol.fr</li>
+                        <li><span className="text-gray-400">Email :</span> lauberge.espagnole.metz@gmail.com</li>
                         <li><span className="text-gray-400">Téléphone :</span> <Placeholder label="+33 X XX XX XX XX" /></li>
                         <li><span className="text-gray-400">Directeur de publication :</span> <Placeholder label="NOM PRÉNOM" /></li>
                     </ul>

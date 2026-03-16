@@ -19,7 +19,7 @@ export const ConfidentialitePage = () => {
                     <ul className="mt-2 space-y-1 list-none">
                         <li><span className="text-gray-400">Identité :</span> <Placeholder label="NOM DE L'ENTREPRISE ou NOM PRÉNOM" /></li>
                         <li><span className="text-gray-400">Adresse :</span> <Placeholder label="ADRESSE COMPLÈTE" /></li>
-                        <li><span className="text-gray-400">Email :</span> contact@auberge-espagnol.fr</li>
+                        <li><span className="text-gray-400">Email :</span> lauberge.espagnole.metz@gmail.com</li>
                     </ul>
                 </>
             ),
@@ -122,7 +122,7 @@ export const ConfidentialitePage = () => {
                         <li><strong>Droit à la limitation</strong> — limiter le traitement de vos données</li>
                     </ul>
                     <p className="mt-3">
-                        Pour exercer ces droits, contactez-nous à : <strong>contact@auberge-espagnol.fr</strong>
+                        Pour exercer ces droits, contactez-nous à : <strong>lauberge.espagnole.metz@gmail.com</strong>
                         {' '}en joignant une copie de votre pièce d'identité.
                         Nous nous engageons à répondre dans un délai de <strong>30 jours</strong>.
                     </p>

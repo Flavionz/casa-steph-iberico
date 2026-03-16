@@ -22,7 +22,7 @@ export const Footer = () => {
                 L'excellence des produits espagnols, livrés chez vous.
               </p>
               <p className="text-gray-400 text-sm mt-2">
-                contact@auberge-espagnol.fr
+                lauberge.espagnole.metz@gmail.com
               </p>
             </div>
 
