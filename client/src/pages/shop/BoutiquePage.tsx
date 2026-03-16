@@ -135,20 +135,12 @@ export const BoutiquePage = () => {
               </p>
             </div>
 
-            {/* Info Banner — mobile: compact strip, desktop: full cards */}
+            {/* Livraison info block */}
+            <div className="mb-8 bg-[#2C2C2C] border border-gray-700 rounded-lg p-6">
 
-            {/* Mobile summary strip */}
-            <div className="md:hidden mb-6 bg-[#2C2C2C] border border-gray-700 rounded-lg px-4 py-3 flex items-center gap-3 text-xs text-gray-300">
-              <Truck className="text-[#Cca43b] shrink-0" size={16} />
-              <span>
-                Livraison à Metz et ses environs · gratuite <strong className="text-white">sous 7 km</strong> · {ZONE_2_DELIVERY_FEE} € jusqu'à 15 km (offerte dès {FREE_DELIVERY_THRESHOLD} €) · Panier min. <strong className="text-white">{MIN_CART_AMOUNT} €</strong>
-              </span>
-            </div>
-
-            {/* Desktop: context block + full cards */}
-            <div className="hidden md:block">
-              <div className="mb-6 bg-[#2C2C2C] border border-gray-700 rounded-lg p-5 flex items-start gap-4">
-                <Truck className="text-[#Cca43b] shrink-0 mt-0.5" size={22} />
+              {/* Intro — masqué sur mobile */}
+              <div className="hidden md:flex items-start gap-3 mb-5 pb-5 border-b border-gray-700">
+                <Truck className="text-[#Cca43b] shrink-0 mt-0.5" size={20} />
                 <p className="text-sm text-gray-300 leading-relaxed">
                   <span className="font-semibold text-white">Livraison assurée personnellement par notre équipe.</span>{' '}
                   Petite structure locale basée à Metz, nous livrons nous-mêmes vos commandes à domicile, sans intermédiaire,
@@ -156,29 +148,33 @@ export const BoutiquePage = () => {
                 </p>
               </div>
 
-              <div className="mb-8 grid grid-cols-3 gap-4">
-                <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-5 flex items-start gap-3">
-                  <Truck className="text-blue-400 shrink-0 mt-0.5" size={22} />
-                  <div className="text-sm text-blue-200">
-                    <p className="font-semibold text-white mb-1">Livraison gratuite</p>
-                    <p>Dans un rayon de <strong>7 km</strong> autour de Metz</p>
-                  </div>
-                </div>
-                <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-5 flex items-start gap-3">
-                  <Package className="text-blue-400 shrink-0 mt-0.5" size={22} />
-                  <div className="text-sm text-blue-200">
-                    <p className="font-semibold text-white mb-1">{ZONE_2_DELIVERY_FEE} € entre 7 et 15 km autour de Metz</p>
-                    <p>Offerte dès <strong>{FREE_DELIVERY_THRESHOLD} €</strong> d'achat dans cette zone</p>
-                  </div>
-                </div>
-                <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-5 flex items-start gap-3">
-                  <ShoppingBag className="text-amber-400 shrink-0 mt-0.5" size={22} />
-                  <div className="text-sm text-amber-200">
-                    <p className="font-semibold text-white mb-1">Panier minimum</p>
-                    <p><strong>{MIN_CART_AMOUNT} €</strong> pour passer commande</p>
-                  </div>
-                </div>
-              </div>
+              {/* Liste des règles */}
+              <ul className="space-y-3 text-sm">
+                <li className="flex items-center gap-3">
+                  <Truck className="text-[#Cca43b] shrink-0" size={16} />
+                  <span className="text-gray-300">
+                    <strong className="text-white">Livraison gratuite</strong> dans un rayon de 7 km autour de Metz
+                  </span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <Package className="text-[#Cca43b] shrink-0" size={16} />
+                  <span className="text-gray-300">
+                    <strong className="text-white">{ZONE_2_DELIVERY_FEE} €</strong> entre 7 et 15 km autour de Metz, offerts dès <strong className="text-white">{FREE_DELIVERY_THRESHOLD} €</strong> d'achat
+                  </span>
+                </li>
+                <li className="flex items-center gap-3">
+                  <ShoppingBag className="text-[#Cca43b] shrink-0" size={16} />
+                  <span className="text-gray-300">
+                    Panier minimum de <strong className="text-white">{MIN_CART_AMOUNT} €</strong> pour passer commande
+                  </span>
+                </li>
+              </ul>
+
+              {/* Note code postal */}
+              <p className="mt-4 pt-4 border-t border-gray-700 text-xs text-gray-400 flex items-center gap-2">
+                <Info size={13} className="text-[#Cca43b] shrink-0" />
+                Votre adresse est-elle couverte ? Renseignez votre code postal lors de la commande pour le vérifier.
+              </p>
             </div>
 
             {/* Stock Info */}
