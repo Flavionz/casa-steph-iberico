@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/orders');
 const { sendOrderReadyEmail, sendOrderDeliveredEmail } = require('./services/emailService');
+const { authenticate, isAdmin } = require('./middleware/authMiddleware');
 
 const app = express();
 const prisma = new PrismaClient();
@@ -68,7 +69,7 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-app.post('/api/products', upload.single('image'), async (req, res) => {
+app.post('/api/products', authenticate, isAdmin, upload.single('image'), async (req, res) => {
     const { name, description, price, stock, categoryId } = req.body;
     const imageRelativePath = req.file ? `/uploads/${req.file.filename}` : null;
     const parsedPrice = parseFloat(price);
@@ -107,7 +108,7 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
     }
 });
 
-app.put('/api/products/:id', upload.single('image'), async (req, res) => {
+app.put('/api/products/:id', authenticate, isAdmin, upload.single('image'), async (req, res) => {
     try {
         const { id } = req.params;
         const { name, description, price, stock, categoryId } = req.body;
@@ -158,7 +159,7 @@ app.put('/api/products/:id', upload.single('image'), async (req, res) => {
     }
 });
 
-app.delete('/api/products/:id', async (req, res) => {
+app.delete('/api/products/:id', authenticate, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         const product = await prisma.product.findUnique({
@@ -203,7 +204,7 @@ app.get('/api/featured', async (req, res) => {
     }
 });
 
-app.post('/api/featured', upload.single('image'), async (req, res) => {
+app.post('/api/featured', authenticate, isAdmin, upload.single('image'), async (req, res) => {
     try {
         const { title, category, position } = req.body;
         const imageRelativePath = req.file ? `/uploads/${req.file.filename}` : null;
@@ -233,7 +234,7 @@ app.post('/api/featured', upload.single('image'), async (req, res) => {
     }
 });
 
-app.put('/api/featured/:id', upload.single('image'), async (req, res) => {
+app.put('/api/featured/:id', authenticate, isAdmin, upload.single('image'), async (req, res) => {
     try {
         const { id } = req.params;
         const { title, category, position } = req.body;
@@ -275,7 +276,7 @@ app.put('/api/featured/:id', upload.single('image'), async (req, res) => {
     }
 });
 
-app.delete('/api/featured/:id', async (req, res) => {
+app.delete('/api/featured/:id', authenticate, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -291,7 +292,7 @@ app.delete('/api/featured/:id', async (req, res) => {
     }
 });
 
-app.get('/api/orders/admin/all', async (req, res) => {
+app.get('/api/orders/admin/all', authenticate, isAdmin, async (req, res) => {
     try {
         const { status } = req.query;
         const where = status && status !== 'all' ? { status } : {};
@@ -352,7 +353,7 @@ app.get('/api/orders/:id', async (req, res) => {
     }
 });
 
-app.put('/api/orders/:id/status', async (req, res) => {
+app.put('/api/orders/:id/status', authenticate, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
@@ -384,7 +385,7 @@ app.put('/api/orders/:id/status', async (req, res) => {
     }
 });
 
-app.put('/api/orders/:id/delivery', async (req, res) => {
+app.put('/api/orders/:id/delivery', authenticate, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         const { deliveryTimeSlot, deliveryDate } = req.body;
@@ -416,7 +417,7 @@ app.put('/api/orders/:id/delivery', async (req, res) => {
     }
 });
 
-app.post('/api/orders/:id/notify', async (req, res) => {
+app.post('/api/orders/:id/notify', authenticate, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
         const { type } = req.body;
@@ -450,10 +451,14 @@ app.post('/api/orders/:id/notify', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`Server avviato su http://localhost:${PORT}`);
-    console.log(`🔐 Auth API disponibile su http://localhost:${PORT}/api/auth`);
-    console.log(`👤 User API disponibile su http://localhost:${PORT}/api/user`);
-    console.log(`📦 Orders API disponibile su http://localhost:${PORT}/api/orders`);
-    console.log(`🎨 Featured API disponibile su http://localhost:${PORT}/api/featured`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server avviato su http://localhost:${PORT}`);
+        console.log(`Auth API disponibile su http://localhost:${PORT}/api/auth`);
+        console.log(`User API disponibile su http://localhost:${PORT}/api/user`);
+        console.log(`Orders API disponibile su http://localhost:${PORT}/api/orders`);
+        console.log(`Featured API disponibile su http://localhost:${PORT}/api/featured`);
+    });
+}
+
+module.exports = app;
