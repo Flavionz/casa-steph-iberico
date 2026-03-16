@@ -20,6 +20,9 @@ import { UserAddress } from './pages/user/UserAddress';
 import { CheckoutPage } from './pages/shop/CheckoutPage';
 import { AboutPage } from './pages/AboutPage';
 import { OrderConfirmationPage } from './pages/shop/OrderConfirmationPage';
+import { MentionsLegalesPage } from './pages/legal/MentionsLegalesPage';
+import { CGVPage } from './pages/legal/CGVPage';
+import { ConfidentialitePage } from './pages/legal/ConfidentialitePage';
 
 
 
@@ -53,6 +56,24 @@ export const AppRouter: React.FC = () => {
             <Route path="/about" element={
                 <FrontendLayout>
                     <AboutPage />
+                </FrontendLayout>
+            } />
+
+            <Route path="/mentions" element={
+                <FrontendLayout>
+                    <MentionsLegalesPage />
+                </FrontendLayout>
+            } />
+
+            <Route path="/cgv" element={
+                <FrontendLayout>
+                    <CGVPage />
+                </FrontendLayout>
+            } />
+
+            <Route path="/privacy" element={
+                <FrontendLayout>
+                    <ConfidentialitePage />
                 </FrontendLayout>
             } />
 
