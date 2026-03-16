@@ -93,9 +93,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 password
             });
 
-            const { user, token } = response.data;
+            const { token } = response.data;
             localStorage.setItem('authToken', token);
-            setUser(user);
+
+            // Load full profile from DB (verifyToken returns all fields)
+            const profileResponse = await axios.get(`${API_URL}/auth/verify`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            setUser(profileResponse.data.user);
 
         } catch (error: any) {
             const errorMessage = error.response?.data?.error || 'Invalid credentials';
