@@ -92,7 +92,14 @@ const login = async (req, res) => {
             user: {
                 id: user.id,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                civility: user.civility,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                phone: user.phone,
+                address: user.address,
+                city: user.city,
+                postalCode: user.postalCode,
             },
             token
         });
@@ -125,7 +132,14 @@ const verifyToken = async (req, res) => {
             user: {
                 id: user.id,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                civility: user.civility,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                phone: user.phone,
+                address: user.address,
+                city: user.city,
+                postalCode: user.postalCode,
             }
         });
 
