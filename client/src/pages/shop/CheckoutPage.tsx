@@ -5,12 +5,15 @@ import { Elements } from '@stripe/react-stripe-js';
 import { CartContext } from '../../contexts/CartContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import { StripePaymentForm } from '../../components/checkout/StripePaymentForm';
-import { MapPin, CreditCard, Package, AlertCircle, CheckCircle, ChevronLeft, ArrowRight } from 'lucide-react';
+import { MapPin, CreditCard, Package, AlertCircle, CheckCircle, ChevronLeft, ArrowRight, Info } from 'lucide-react';
 import axios from 'axios';
+import {
+    ALL_ELIGIBLE_POSTCODES,
+    getDeliveryFee,
+    getZoneLabel,
+} from '../../constants/delivery';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? '');
-
-const ELIGIBLE_POSTCODES = ['57000', '57050', '57070', '57140', '57150', '57160', '57170'];
 
 export const CheckoutPage = () => {
     const { cartItems, cartTotal, clearCart, cartCount } = useContext(CartContext);
@@ -31,6 +34,16 @@ export const CheckoutPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [clientSecret, setClientSecret] = useState<string | null>(null);
     const [isLoadingPayment, setIsLoadingPayment] = useState(false);
+    const [orderCount, setOrderCount] = useState<number | null>(null);
+
+    // Check if user has previous orders (for cash payment eligibility)
+    useEffect(() => {
+        if (!user) return;
+        const token = localStorage.getItem('authToken');
+        axios.get('http://localhost:3000/api/user/orders', {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(r => setOrderCount(r.data.length)).catch(() => setOrderCount(0));
+    }, [user]);
 
     useEffect(() => {
         if (cartItems.length === 0) {
@@ -57,7 +70,7 @@ export const CheckoutPage = () => {
                     const token = localStorage.getItem('authToken');
                     const response = await axios.post(
                         'http://localhost:3000/api/payments/create-intent',
-                        { amount: cartTotal },
+                        { amount: orderTotal },
                         { headers: { Authorization: `Bearer ${token}` } }
                     );
                     setClientSecret(response.data.clientSecret);
@@ -104,7 +117,7 @@ export const CheckoutPage = () => {
                 state: {
                     orderData: {
                         orderId: response.data.order?.id ?? response.data.id,
-                        total: cartTotal,
+                        total: orderTotal,
                         items: cartItems.map(item => ({
                             id: item.id,
                             name: item.name,
@@ -125,7 +138,10 @@ export const CheckoutPage = () => {
         }
     };
 
-    const isEligible = ELIGIBLE_POSTCODES.includes(deliveryData.postalCode);
+    const isEligible = ALL_ELIGIBLE_POSTCODES.includes(deliveryData.postalCode);
+    const deliveryFee = isEligible ? getDeliveryFee(deliveryData.postalCode, cartTotal) : 0;
+    const orderTotal = cartTotal + deliveryFee;
+    const isCashAllowed = orderCount !== null && orderCount > 0;
     const canProceedToStep2 = deliveryData.address && deliveryData.city && deliveryData.postalCode && isEligible && deliveryData.phone;
 
     const handleNextStep = () => {
@@ -174,7 +190,7 @@ export const CheckoutPage = () => {
                 state: {
                     orderData: {
                         orderId: response.data.id,
-                        total: cartTotal,
+                        total: orderTotal,
                         items: cartItems.map(item => ({
                             id: item.id,
                             name: item.name,
@@ -303,7 +319,7 @@ export const CheckoutPage = () => {
                                             <h3 className="font-serif text-lg text-white mb-2">Livraison Locale</h3>
                                             <p className="text-sm text-blue-300 leading-relaxed">
                                                 Vos produits seront livrés personnellement dans un rayon de 15 km autour de Metz.
-                                                Codes postaux éligibles: {ELIGIBLE_POSTCODES.join(', ')}
+                                                Codes postaux éligibles: {ALL_ELIGIBLE_POSTCODES.join(', ')}
                                             </p>
                                         </div>
                                     </div>
@@ -384,7 +400,7 @@ export const CheckoutPage = () => {
                                                 {!isEligible && deliveryData.postalCode.length === 5 && (
                                                     <p className="text-xs text-red-400 mt-1 flex items-center space-x-1">
                                                         <AlertCircle size={12} />
-                                                        <span>Zone non couverte. CP éligibles: {ELIGIBLE_POSTCODES.join(', ')}</span>
+                                                        <span>Zone non couverte. CP éligibles: {ALL_ELIGIBLE_POSTCODES.join(', ')}</span>
                                                     </p>
                                                 )}
                                             </div>
@@ -430,29 +446,40 @@ export const CheckoutPage = () => {
                                     </div>
 
                                     <div className="space-y-3">
-                                        <label className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                                            deliveryData.paymentMethod === 'cash'
-                                                ? 'border-gold bg-gold/10'
-                                                : 'border-gray-600 hover:border-gray-500'
-                                        }`}>
-                                            <input
-                                                type="radio"
-                                                name="paymentMethod"
-                                                value="cash"
-                                                checked={deliveryData.paymentMethod === 'cash'}
-                                                onChange={handleChange}
-                                                className="mt-1 text-gold focus:ring-gold"
-                                            />
-                                            <div className="ml-3 flex-1">
-                                                <div className="flex items-center space-x-2 mb-1">
-                                                    <span className="text-2xl">💶</span>
-                                                    <span className="text-white font-semibold">Paiement à la livraison</span>
+                                        {/* Cash — réservé aux clients fidèles */}
+                                        {isCashAllowed ? (
+                                            <label className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                                                deliveryData.paymentMethod === 'cash'
+                                                    ? 'border-gold bg-gold/10'
+                                                    : 'border-gray-600 hover:border-gray-500'
+                                            }`}>
+                                                <input
+                                                    type="radio"
+                                                    name="paymentMethod"
+                                                    value="cash"
+                                                    checked={deliveryData.paymentMethod === 'cash'}
+                                                    onChange={handleChange}
+                                                    className="mt-1 text-gold focus:ring-gold"
+                                                />
+                                                <div className="ml-3 flex-1">
+                                                    <div className="flex items-center space-x-2 mb-1">
+                                                        <span className="text-2xl">💶</span>
+                                                        <span className="text-white font-semibold">Paiement à la livraison</span>
+                                                    </div>
+                                                    <p className="text-sm text-gray-400">Espèces lors de la livraison</p>
                                                 </div>
-                                                <p className="text-sm text-gray-400">
-                                                    Espèces ou carte bancaire lors de la livraison
-                                                </p>
+                                            </label>
+                                        ) : (
+                                            <div className="flex items-start gap-3 p-4 border-2 border-gray-700 rounded-lg bg-gray-800/30 opacity-70">
+                                                <Info size={18} className="text-gray-500 shrink-0 mt-0.5" />
+                                                <div>
+                                                    <p className="text-gray-400 text-sm font-medium">Paiement à la livraison</p>
+                                                    <p className="text-gray-500 text-xs mt-0.5">
+                                                        Disponible à partir de votre 2ème commande.
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </label>
+                                        )}
 
                                         <label className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
                                             deliveryData.paymentMethod === 'card'
@@ -591,12 +618,18 @@ export const CheckoutPage = () => {
                                 </div>
                                 <div className="flex justify-between text-gray-400 text-sm">
                                     <span>Livraison</span>
-                                    <span className="text-green-400 font-medium">Gratuite</span>
+                                    {deliveryFee === 0
+                                        ? <span className="text-green-400 font-medium">Gratuite</span>
+                                        : <span>{deliveryFee.toFixed(2)} €</span>
+                                    }
                                 </div>
+                                {deliveryFee > 0 && (
+                                    <p className="text-xs text-gray-500">{getZoneLabel(deliveryData.postalCode)}</p>
+                                )}
                                 <div className="border-t border-gray-700 pt-3 mt-3"></div>
                                 <div className="flex justify-between text-white font-bold text-xl">
                                     <span>Total</span>
-                                    <span className="text-gold">{cartTotal.toFixed(2)} €</span>
+                                    <span className="text-gold">{orderTotal.toFixed(2)} €</span>
                                 </div>
                             </div>
 

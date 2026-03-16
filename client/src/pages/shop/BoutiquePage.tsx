@@ -3,7 +3,8 @@ import axios from 'axios';
 import { Navbar } from '../../components/Navbar';
 import { CartContext } from '../../contexts/CartContext';
 import { CartConfirmationModal } from '../../components/CartConfirmationModal';
-import { Info, Package, Truck, Phone } from 'lucide-react';
+import { Info, Package, Truck, ShoppingBag } from 'lucide-react';
+import { MIN_CART_AMOUNT, ZONE_2_DELIVERY_FEE, FREE_DELIVERY_THRESHOLD } from '../../constants/delivery';
 
 interface Category {
   id: number;
@@ -135,47 +136,37 @@ export const BoutiquePage = () => {
             </div>
 
             {/* Info Banner */}
-            <div className="mb-8 space-y-4">
-              {/* Delivery Info */}
-              <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-6">
-                <div className="flex items-start space-x-4">
-                  <Truck className="text-blue-400 flex-shrink-0 mt-1" size={28} />
-                  <div className="flex-1">
-                    <h3 className="font-serif text-xl text-white mb-3">
-                      Livraison Locale & Personnalisée
-                    </h3>
-                    <div className="space-y-2 text-sm text-blue-200">
-                      <p className="flex items-start space-x-2">
-                        <Info size={16} className="flex-shrink-0 mt-0.5" />
-                        <span>
-                        <strong>Montant minimum de commande:</strong> 50€ pour la livraison gratuite
-                      </span>
-                      </p>
-                      <p className="flex items-start space-x-2">
-                        <Package size={16} className="flex-shrink-0 mt-0.5" />
-                        <span>
-                        <strong>Zone de livraison standard:</strong> 15 km autour de Metz (codes postaux: 57000, 57050, 57070, 57140, 57150, 57160, 57170)
-                      </span>
-                      </p>
-                      <p className="flex items-start space-x-2">
-                        <Phone size={16} className="flex-shrink-0 mt-0.5" />
-                        <span>
-                        <strong>Commande importante hors zone?</strong> Pas de problème! Contactez-nous pour les commandes supérieures à 150€ et nous étudierons ensemble la possibilité d'une livraison exceptionnelle.
-                      </span>
-                      </p>
-                    </div>
-                  </div>
+            <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-5 flex items-start gap-3">
+                <Truck className="text-blue-400 shrink-0 mt-0.5" size={22} />
+                <div className="text-sm text-blue-200">
+                  <p className="font-semibold text-white mb-1">Livraison gratuite</p>
+                  <p>Dans un rayon de <strong>7 km</strong> autour de Metz</p>
                 </div>
               </div>
-
-              {/* Stock Info */}
-              <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
-                <div className="flex items-center space-x-3">
-                  <Info className="text-amber-400" size={20} />
-                  <p className="text-sm text-amber-200">
-                    <strong>Stock limité:</strong> Nos produits sont préparés artisanalement. Les quantités disponibles sont mises à jour en temps réel.
-                  </p>
+              <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-5 flex items-start gap-3">
+                <Package className="text-blue-400 shrink-0 mt-0.5" size={22} />
+                <div className="text-sm text-blue-200">
+                  <p className="font-semibold text-white mb-1">{ZONE_2_DELIVERY_FEE} € entre 7 et 15 km</p>
+                  <p>Offerte dès <strong>{FREE_DELIVERY_THRESHOLD} €</strong> d'achat</p>
                 </div>
+              </div>
+              <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-5 flex items-start gap-3">
+                <ShoppingBag className="text-amber-400 shrink-0 mt-0.5" size={22} />
+                <div className="text-sm text-amber-200">
+                  <p className="font-semibold text-white mb-1">Panier minimum</p>
+                  <p><strong>{MIN_CART_AMOUNT} €</strong> pour passer commande</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stock Info */}
+            <div className="mb-8 bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
+              <div className="flex items-center space-x-3">
+                <Info className="text-amber-400" size={20} />
+                <p className="text-sm text-amber-200">
+                  <strong>Stock limité :</strong> Nos produits sont préparés artisanalement. Les quantités disponibles sont mises à jour en temps réel.
+                </p>
               </div>
             </div>
 
