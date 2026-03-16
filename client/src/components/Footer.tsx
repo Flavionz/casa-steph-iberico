@@ -1,7 +1,10 @@
-import { Instagram, Facebook, Phone } from 'lucide-react';
+import { Instagram, Facebook, Phone, Cookie } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useCookieConsent } from '../contexts/CookieConsentContext';
 
 export const Footer = () => {
+  const { openModal } = useCookieConsent();
+
   return (
       <footer className="bg-dark py-12 border-t border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -45,6 +48,15 @@ export const Footer = () => {
                   <Link to="/privacy" className="text-gray-400 text-sm hover:text-gold transition-colors">
                     Politique de Confidentialité
                   </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={openModal}
+                    className="flex items-center gap-1.5 text-gray-400 text-sm hover:text-gold transition-colors"
+                  >
+                    <Cookie size={13} />
+                    Gérer les cookies
+                  </button>
                 </li>
               </ul>
             </div>

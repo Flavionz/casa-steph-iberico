@@ -5,6 +5,8 @@ import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import { CookieConsentProvider } from './contexts/CookieConsentContext';
+import { CookieBanner } from './components/cookies/CookieBanner';
 
 export const FrontendLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
@@ -23,7 +25,10 @@ export function App() {
         <BrowserRouter>
             <AuthProvider>
                 <CartProvider>
-                    <AppRouter />
+                    <CookieConsentProvider>
+                        <AppRouter />
+                        <CookieBanner />
+                    </CookieConsentProvider>
                 </CartProvider>
             </AuthProvider>
         </BrowserRouter>
