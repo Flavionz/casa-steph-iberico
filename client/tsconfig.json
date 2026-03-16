@@ -18,6 +18,8 @@
       "@/*": ["./src/*"]
     },
 
+    "types": ["vite/client"],
+
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
