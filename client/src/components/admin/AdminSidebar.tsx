@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, Package, Users, ShoppingBag, Image, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Package, Users, ShoppingBag, Image, LogOut, X, Home } from 'lucide-react';
 import { AuthContext } from '../../contexts/AuthContext';
 
 interface AdminSidebarProps {
@@ -88,11 +88,19 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
                 </ul>
             </nav>
 
-            {/* Logout */}
+            {/* Retour accueil + Logout */}
             <div className="p-4 border-t border-gray-800">
+                <Link
+                    to="/"
+                    onClick={onClose}
+                    className="flex items-center space-x-3 px-4 py-3 w-full text-gray-400 hover:text-gold hover:bg-gold/10 rounded-md transition-all duration-200 group mb-1"
+                >
+                    <Home size={20} className="text-gray-500 group-hover:text-gold" />
+                    <span className="text-sm font-medium">Retour à l'accueil</span>
+                </Link>
                 <button
                     onClick={handleLogout}
-                    className="flex items-center space-x-3 px-4 py-3 w-full text-gray-400 hover:text-red-400 hover:bg-red-900/10 rounded-md transition-all duration-200 group"
+                    className="flex items-center space-x-3 px-4 py-3 w-full text-gray-400 hover:text-red-400 hover:bg-red-900/10 rounded-md transition-all duration-200 group border-t border-gray-800 pt-3 mt-1"
                 >
                     <LogOut size={20} className="text-gray-500 group-hover:text-red-400" />
                     <span className="text-sm font-medium">Déconnexion</span>
