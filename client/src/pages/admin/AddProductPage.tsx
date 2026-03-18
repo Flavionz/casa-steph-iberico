@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 export const AddProductPage = () => {
   const { id } = useParams();
@@ -22,7 +23,6 @@ export const AddProductPage = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const API_URL = 'http://localhost:3000/api';
 
   useEffect(() => {
     fetchCategories();

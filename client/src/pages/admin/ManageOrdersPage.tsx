@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { Package, Clock, CheckCircle, XCircle, Eye, Truck, Mail } from 'lucide-react';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 interface Order {
     id: number;
@@ -35,7 +36,6 @@ export const ManageOrdersPage = () => {
     const [deliveryDate, setDeliveryDate] = useState('');
     const [deliveryTime, setDeliveryTime] = useState('');
 
-    const API_URL = 'http://localhost:3000/api';
 
     const statusConfig = {
         en_attente: { label: 'En attente', color: 'bg-yellow-500', icon: Clock },

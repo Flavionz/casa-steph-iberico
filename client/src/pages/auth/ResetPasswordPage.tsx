@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 export const ResetPasswordPage: React.FC = () => {
     const [searchParams] = useSearchParams();
@@ -41,7 +42,7 @@ export const ResetPasswordPage: React.FC = () => {
 
         setIsLoading(true);
         try {
-            await axios.post('http://localhost:3000/api/auth/reset-password', { token, newPassword });
+            await axios.post(`${API_URL}/auth/reset-password`, { token, newPassword });
             setSuccess(true);
             setTimeout(() => navigate('/login'), 3000);
         } catch (err: any) {

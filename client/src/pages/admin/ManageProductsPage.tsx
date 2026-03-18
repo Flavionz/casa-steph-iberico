@@ -3,6 +3,7 @@ import { AdminLayout } from '../../components/admin/AdminLayout';
 import { Edit, Trash2, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 interface Product {
     id: number;
@@ -21,7 +22,6 @@ export const ManageProductsPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const API_URL = 'http://localhost:3000/api';
 
     useEffect(() => {
         fetchProducts();

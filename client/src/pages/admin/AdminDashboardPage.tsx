@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import { Package, ShoppingCart, DollarSign, Users, AlertTriangle } from 'lucide-react';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 
-const API_URL = 'http://localhost:3000/api';
 
 interface RecentOrder {
     id: number;

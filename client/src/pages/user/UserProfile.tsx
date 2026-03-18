@@ -3,6 +3,7 @@ import { UserLayout } from '../../components/user/UserLayout';
 import { AuthContext } from '../../contexts/AuthContext';
 import { Save, User as UserIcon, PenLine, Phone } from 'lucide-react';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 const CIVILITY_OPTIONS = [
     { value: 'M.', label: 'M.' },
@@ -45,7 +46,7 @@ export const UserProfile = () => {
         try {
             const token = localStorage.getItem('authToken');
             const response = await axios.put(
-                'http://localhost:3000/api/user/profile',
+                `${API_URL}/user/profile`,
                 formData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );

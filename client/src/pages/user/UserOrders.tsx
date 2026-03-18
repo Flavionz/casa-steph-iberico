@@ -3,6 +3,7 @@ import { UserLayout } from '../../components/user/UserLayout';
 import { Package, Clock, CheckCircle, XCircle, ShoppingBag, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 interface Order {
     id: number;
@@ -35,7 +36,7 @@ export const UserOrders = () => {
         const fetchOrders = async () => {
             try {
                 const token = localStorage.getItem('authToken');
-                const response = await axios.get('http://localhost:3000/api/user/orders', {
+                const response = await axios.get(`${API_URL}/user/orders`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setOrders(response.data);

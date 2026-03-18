@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 export const ForgotPasswordPage: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -14,7 +15,7 @@ export const ForgotPasswordPage: React.FC = () => {
         setError('');
 
         try {
-            await axios.post('http://localhost:3000/api/auth/forgot-password', { email });
+            await axios.post(`${API_URL}/auth/forgot-password`, { email });
             setSubmitted(true);
         } catch {
             setError('Une erreur est survenue. Veuillez réessayer.');

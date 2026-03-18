@@ -7,6 +7,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { StripePaymentForm } from '../../components/checkout/StripePaymentForm';
 import { MapPin, CreditCard, Package, AlertCircle, CheckCircle, ChevronLeft, ArrowRight, Info } from 'lucide-react';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 import {
     ALL_ELIGIBLE_POSTCODES,
     getDeliveryFee,
@@ -40,7 +41,7 @@ export const CheckoutPage = () => {
     useEffect(() => {
         if (!user) return;
         const token = localStorage.getItem('authToken');
-        axios.get('http://localhost:3000/api/user/orders', {
+        axios.get(`${API_URL}/user/orders`, {
             headers: { Authorization: `Bearer ${token}` }
         }).then(r => setOrderCount(r.data.length)).catch(() => setOrderCount(0));
     }, [user]);
@@ -69,7 +70,7 @@ export const CheckoutPage = () => {
                 try {
                     const token = localStorage.getItem('authToken');
                     const response = await axios.post(
-                        'http://localhost:3000/api/payments/create-intent',
+                        `${API_URL}/payments/create-intent`,
                         { amount: orderTotal },
                         { headers: { Authorization: `Bearer ${token}` } }
                     );
@@ -107,7 +108,7 @@ export const CheckoutPage = () => {
             };
 
             const response = await axios.post(
-                'http://localhost:3000/api/orders/create',
+                `${API_URL}/orders/create`,
                 orderData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -181,7 +182,7 @@ export const CheckoutPage = () => {
             };
 
             const response = await axios.post(
-                'http://localhost:3000/api/orders/create',
+                `${API_URL}/orders/create`,
                 orderData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );

@@ -4,6 +4,7 @@ import { AuthContext } from '../../contexts/AuthContext';
 import { Package, MapPin, ShoppingBag, PenLine } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 export const UserDashboard = () => {
     const { user } = useContext(AuthContext);
@@ -13,7 +14,7 @@ export const UserDashboard = () => {
         const fetchOrderCount = async () => {
             try {
                 const token = localStorage.getItem('authToken');
-                const response = await axios.get('http://localhost:3000/api/user/orders', {
+                const response = await axios.get(`${API_URL}/user/orders`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setOrderCount(response.data.length);

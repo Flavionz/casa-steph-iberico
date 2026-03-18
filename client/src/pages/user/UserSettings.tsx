@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { UserLayout } from '../../components/user/UserLayout';
 import { Settings as SettingsIcon, Lock } from 'lucide-react';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 export const UserSettings = () => {
     const [formData, setFormData] = useState({
@@ -37,7 +38,7 @@ export const UserSettings = () => {
         try {
             const token = localStorage.getItem('authToken');
             await axios.put(
-                'http://localhost:3000/api/user/password',
+                `${API_URL}/user/password`,
                 {
                     currentPassword: formData.currentPassword,
                     newPassword: formData.newPassword,

@@ -3,6 +3,7 @@ import { UserLayout } from '../../components/user/UserLayout';
 import { AuthContext } from '../../contexts/AuthContext';
 import { MapPin, Save, AlertCircle, PenLine, CheckCircle } from 'lucide-react';
 import axios from 'axios';
+import { API_URL } from '../../config/api';
 
 const ELIGIBLE_POSTCODES = ['57000', '57050', '57140', '57070', '57150', '57160', '57170'];
 
@@ -59,7 +60,7 @@ export const UserAddress = () => {
         try {
             const token = localStorage.getItem('authToken');
             const response = await axios.put(
-                'http://localhost:3000/api/user/profile',
+                `${API_URL}/user/profile`,
                 formData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );

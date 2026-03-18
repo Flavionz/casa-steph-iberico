@@ -6,6 +6,7 @@ import { CartContext } from '../../contexts/CartContext';
 import { CartConfirmationModal } from '../../components/CartConfirmationModal';
 import { Info, Package, Truck, ShoppingBag } from 'lucide-react';
 import { MIN_CART_AMOUNT, ZONE_2_DELIVERY_FEE, FREE_DELIVERY_THRESHOLD } from '../../constants/delivery';
+import { API_URL } from '../../config/api';
 
 interface Category {
   id: number;
@@ -35,7 +36,6 @@ export const BoutiquePage = () => {
   const { addToCart } = useContext(CartContext);
   const navigate = useNavigate();
 
-  const API_URL = 'http://localhost:3000/api';
 
   useEffect(() => {
     const fetchData = async () => {

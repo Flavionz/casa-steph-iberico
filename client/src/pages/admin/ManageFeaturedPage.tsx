@@ -3,6 +3,7 @@ import { AdminLayout } from '../../components/admin/AdminLayout';
 import { Edit, Save, X, Image as ImageIcon } from 'lucide-react';
 import axios from 'axios';
 import { useDropzone } from 'react-dropzone';
+import { API_URL } from '../../config/api';
 
 interface FeaturedProduct {
     id: number;
@@ -21,7 +22,6 @@ export const ManageFeaturedPage = () => {
     const [selectedImage, setSelectedImage] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState('');
 
-    const API_URL = 'http://localhost:3000/api';
 
     useEffect(() => {
         fetchFeatured();

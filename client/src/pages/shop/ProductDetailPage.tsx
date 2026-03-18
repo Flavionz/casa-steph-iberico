@@ -5,6 +5,7 @@ import { ArrowLeft, ShoppingCart } from 'lucide-react';
 import { Navbar } from '../../components/Navbar';
 import { CartContext } from '../../contexts/CartContext';
 import { CartConfirmationModal } from '../../components/CartConfirmationModal';
+import { API_URL } from '../../config/api';
 
 interface Product {
     id: number;
@@ -18,7 +19,6 @@ interface Product {
     };
 }
 
-const API_URL = 'http://localhost:3000/api';
 
 export const ProductDetailPage = () => {
     const { id } = useParams<{ id: string }>();

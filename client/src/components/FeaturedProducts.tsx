@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 interface FeaturedItem {
     id: number;
@@ -14,7 +15,6 @@ export const FeaturedProducts = () => {
     const [featuredItems, setFeaturedItems] = useState<FeaturedItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const API_URL = 'http://localhost:3000/api';
 
     useEffect(() => {
         fetchFeatured();
