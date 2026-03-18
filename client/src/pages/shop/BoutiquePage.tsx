@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Navbar } from '../../components/Navbar';
 import { CartContext } from '../../contexts/CartContext';
@@ -32,6 +33,7 @@ export const BoutiquePage = () => {
   const [addedProduct, setAddedProduct] = useState<Product | null>(null);
 
   const { addToCart } = useContext(CartContext);
+  const navigate = useNavigate();
 
   const API_URL = 'http://localhost:3000/api';
 
@@ -233,7 +235,8 @@ export const BoutiquePage = () => {
                           {filteredProducts.map((product) => (
                               <div
                                   key={product.id}
-                                  className={`bg-[#2C2C2C] rounded-lg overflow-hidden shadow-lg border transition-all duration-300 ${
+                                  onClick={() => navigate(`/boutique/${product.id}`)}
+                                  className={`bg-[#2C2C2C] rounded-lg overflow-hidden shadow-lg border transition-all duration-300 cursor-pointer ${
                                       product.stock === 0
                                           ? 'border-red-500/50 opacity-75'
                                           : 'border-transparent hover:border-[#Cca43b]'
@@ -273,7 +276,7 @@ export const BoutiquePage = () => {
                                   </div>
 
                                   <button
-                                      onClick={() => handleAddToCart(product)}
+                                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
                                       disabled={product.stock === 0}
                                       className={`w-full py-2 border transition-colors rounded uppercase text-xs tracking-wider font-bold ${
                                           product.stock === 0

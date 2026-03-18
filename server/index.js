@@ -73,6 +73,26 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+app.get('/api/products/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await prisma.product.findUnique({
+            where: { id: parseInt(id) },
+            include: { category: true }
+        });
+        if (!product) {
+            return res.status(404).json({ error: 'Produit non trouvé' });
+        }
+        res.json({
+            ...product,
+            image: product.image ? `http://localhost:${PORT}${product.image}` : null
+        });
+    } catch (error) {
+        console.error("Failed to fetch product:", error);
+        res.status(500).json({ error: 'Erreur lors de la récupération du produit' });
+    }
+});
+
 app.post('/api/products', authenticate, isAdmin, upload.single('image'), async (req, res) => {
     const { name, description, price, stock, categoryId } = req.body;
     const imageRelativePath = req.file ? `/uploads/${req.file.filename}` : null;

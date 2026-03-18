@@ -18,6 +18,7 @@ import { UserOrders } from './pages/user/UserOrders';
 import { UserSettings } from './pages/user/UserSettings';
 import { UserAddress } from './pages/user/UserAddress';
 import { CheckoutPage } from './pages/shop/CheckoutPage';
+import { ProductDetailPage } from './pages/shop/ProductDetailPage';
 import { AboutPage } from './pages/AboutPage';
 import { OrderConfirmationPage } from './pages/shop/OrderConfirmationPage';
 import { MentionsLegalesPage } from './pages/legal/MentionsLegalesPage';
@@ -44,6 +45,12 @@ export const AppRouter: React.FC = () => {
             <Route path="/boutique" element={
                 <FrontendLayout>
                     <BoutiquePage />
+                </FrontendLayout>
+            } />
+
+            <Route path="/boutique/:id" element={
+                <FrontendLayout>
+                    <ProductDetailPage />
                 </FrontendLayout>
             } />
 
