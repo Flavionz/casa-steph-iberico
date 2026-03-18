@@ -8,6 +8,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 const register = async (req, res) => {
+    if (process.env.DEMO_MODE === 'true') {
+        return res.status(403).json({
+            error: 'Inscription désactivée en mode démonstration.'
+        });
+    }
     try {
         const { email, password } = req.body;
 

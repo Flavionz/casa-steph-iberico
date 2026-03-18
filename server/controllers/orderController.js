@@ -16,6 +16,11 @@ const calcDeliveryFee = (postalCode, cartTotal) => {
 };
 
 const createOrder = async (req, res) => {
+    if (process.env.DEMO_MODE === 'true') {
+        return res.status(403).json({
+            error: 'Commandes désactivées en mode démonstration.'
+        });
+    }
     try {
         const { items, total, deliveryAddress, postalCode, phone, notes, paymentMethod, paymentIntentId } = req.body;
 

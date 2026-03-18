@@ -15,7 +15,7 @@ const { authenticate, isAdmin } = require('./middleware/authMiddleware');
 
 const app = express();
 const prisma = new PrismaClient();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -32,7 +32,19 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-app.use(cors());
+const allowedOrigins = [
+    'http://localhost:5173',
+    process.env.CLIENT_URL,
+].filter(Boolean);
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+    },
+    credentials: true,
+}));
 // Il webhook Stripe richiede il body raw — va registrato prima di express.json()
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
