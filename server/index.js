@@ -316,6 +316,67 @@ app.delete('/api/featured/:id', authenticate, isAdmin, async (req, res) => {
     }
 });
 
+app.get('/api/admin/users', authenticate, isAdmin, async (req, res) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: {
+                id: true,
+                email: true,
+                role: true,
+                civility: true,
+                firstName: true,
+                lastName: true,
+                phone: true,
+                createdAt: true,
+                _count: { select: { orders: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(users);
+    } catch (error) {
+        console.error('Failed to fetch users:', error);
+        res.status(500).json({ error: 'Erreur lors de la récupération des utilisateurs' });
+    }
+});
+
+app.get('/api/admin/users/:id', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await prisma.user.findUnique({
+            where: { id: parseInt(id) },
+            select: {
+                id: true,
+                email: true,
+                role: true,
+                civility: true,
+                firstName: true,
+                lastName: true,
+                phone: true,
+                address: true,
+                city: true,
+                postalCode: true,
+                createdAt: true,
+                orders: {
+                    orderBy: { createdAt: 'desc' },
+                    select: {
+                        id: true,
+                        status: true,
+                        total: true,
+                        paymentMethod: true,
+                        paymentStatus: true,
+                        createdAt: true,
+                    }
+                }
+            }
+        });
+        if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+        res.json(user);
+    } catch (error) {
+        console.error('Failed to fetch user:', error);
+        res.status(500).json({ error: 'Erreur lors de la récupération' });
+    }
+});
+
 app.get('/api/admin/stats', authenticate, isAdmin, async (req, res) => {
     try {
         const now = new Date();
