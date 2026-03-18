@@ -2,9 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const { PrismaClient } = require('@prisma/client');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 require('dotenv').config();
+
+const { storage: cloudinaryStorage } = require('./config/cloudinary');
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
@@ -17,20 +17,7 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3000;
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDir = 'uploads/';
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir);
-        }
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
-
-const upload = multer({ storage: storage });
+const upload = multer({ storage: cloudinaryStorage });
 
 const allowedOrigins = [
     'http://localhost:5173',
@@ -49,7 +36,7 @@ app.use(cors({
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Images hosted on Cloudinary — no local /uploads to serve
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
@@ -77,7 +64,7 @@ app.get('/api/products', async (req, res) => {
         });
         res.json(products.map(p => ({
             ...p,
-            image: p.image ? `http://localhost:${PORT}${p.image}` : null
+            image: p.image || null
         })));
     } catch (error) {
         console.error("Failed to fetch products:", error);
@@ -97,7 +84,7 @@ app.get('/api/products/:id', async (req, res) => {
         }
         res.json({
             ...product,
-            image: product.image ? `http://localhost:${PORT}${product.image}` : null
+            image: product.image || null
         });
     } catch (error) {
         console.error("Failed to fetch product:", error);
@@ -107,17 +94,12 @@ app.get('/api/products/:id', async (req, res) => {
 
 app.post('/api/products', authenticate, isAdmin, upload.single('image'), async (req, res) => {
     const { name, description, price, stock, categoryId } = req.body;
-    const imageRelativePath = req.file ? `/uploads/${req.file.filename}` : null;
+    const imageUrl = req.file ? req.file.path : null;
     const parsedPrice = parseFloat(price);
     const parsedStock = parseInt(stock, 10);
     const parsedCategoryId = parseInt(categoryId, 10);
 
     if (!name || isNaN(parsedPrice) || isNaN(parsedCategoryId)) {
-        if (req.file) {
-            fs.unlink(req.file.path, (err) => {
-                if (err) console.error("Failed to clean up invalid file:", err);
-            });
-        }
         return res.status(400).json({ error: "Données manquantes: nom, prix ou catégorie sont requis." });
     }
 
@@ -128,14 +110,13 @@ app.post('/api/products', authenticate, isAdmin, upload.single('image'), async (
                 description: description,
                 price: parsedPrice,
                 stock: parsedStock,
-                image: imageRelativePath,
+                image: imageUrl,
                 categoryId: parsedCategoryId,
             }
         });
 
         res.status(201).json({
             ...newProduct,
-            image: newProduct.image ? `http://localhost:${PORT}${newProduct.image}` : null,
             message: 'Produit créé avec succès.'
         });
     } catch (error) {
@@ -170,13 +151,9 @@ app.put('/api/products/:id', authenticate, isAdmin, upload.single('image'), asyn
             });
 
             if (oldProduct && oldProduct.image) {
-                const oldImagePath = path.join(__dirname, oldProduct.image);
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
             }
 
-            updateData.image = `/uploads/${req.file.filename}`;
+            updateData.image = req.file.path;
         }
 
         const updatedProduct = await prisma.product.update({
@@ -186,7 +163,6 @@ app.put('/api/products/:id', authenticate, isAdmin, upload.single('image'), asyn
 
         res.json({
             ...updatedProduct,
-            image: updatedProduct.image ? `http://localhost:${PORT}${updatedProduct.image}` : null,
             message: 'Produit modifié avec succès'
         });
     } catch (error) {
@@ -204,13 +180,6 @@ app.delete('/api/products/:id', authenticate, isAdmin, async (req, res) => {
 
         if (!product) {
             return res.status(404).json({ error: 'Produit non trouvé' });
-        }
-
-        if (product.image) {
-            const imagePath = path.join(__dirname, product.image);
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
-            }
         }
 
         await prisma.product.delete({
@@ -232,7 +201,7 @@ app.get('/api/featured', async (req, res) => {
         });
         res.json(featured.map(f => ({
             ...f,
-            image: f.image.startsWith('http') ? f.image : `http://localhost:${PORT}${f.image}`
+            image: f.image
         })));
     } catch (error) {
         console.error('Failed to fetch featured products:', error);
@@ -243,9 +212,9 @@ app.get('/api/featured', async (req, res) => {
 app.post('/api/featured', authenticate, isAdmin, upload.single('image'), async (req, res) => {
     try {
         const { title, category, position } = req.body;
-        const imageRelativePath = req.file ? `/uploads/${req.file.filename}` : null;
+        const imageUrl = req.file ? req.file.path : null;
 
-        if (!title || !category || !imageRelativePath) {
+        if (!title || !category || !imageUrl) {
             return res.status(400).json({ error: 'Données manquantes' });
         }
 
@@ -253,7 +222,7 @@ app.post('/api/featured', authenticate, isAdmin, upload.single('image'), async (
             data: {
                 title,
                 category,
-                image: imageRelativePath,
+                image: imageUrl,
                 position: parseInt(position, 10) || 999,
                 isActive: true
             }
@@ -261,7 +230,6 @@ app.post('/api/featured', authenticate, isAdmin, upload.single('image'), async (
 
         res.status(201).json({
             ...newFeatured,
-            image: `http://localhost:${PORT}${newFeatured.image}`,
             message: 'Produit vitrine créé avec succès'
         });
     } catch (error) {
@@ -287,13 +255,9 @@ app.put('/api/featured/:id', authenticate, isAdmin, upload.single('image'), asyn
             });
 
             if (oldFeatured && oldFeatured.image && !oldFeatured.image.startsWith('http')) {
-                const oldImagePath = path.join(__dirname, oldFeatured.image);
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
-                }
             }
 
-            updateData.image = `/uploads/${req.file.filename}`;
+            updateData.image = req.file.path;
         }
 
         const updated = await prisma.featuredProduct.update({
@@ -303,7 +267,6 @@ app.put('/api/featured/:id', authenticate, isAdmin, upload.single('image'), asyn
 
         res.json({
             ...updated,
-            image: updated.image.startsWith('http') ? updated.image : `http://localhost:${PORT}${updated.image}`,
             message: 'Produit vitrine modifié avec succès'
         });
     } catch (error) {
