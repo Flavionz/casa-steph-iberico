@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
-import { Package, Clock, CheckCircle, XCircle, Eye, Truck, Mail } from 'lucide-react';
+import {
+    Package, Clock, CheckCircle, XCircle, Truck, Mail,
+    User, MapPin, X, ChevronRight, StickyNote
+} from 'lucide-react';
 import axios from 'axios';
 import { API_URL } from '../../config/api';
 
@@ -26,36 +29,40 @@ interface Order {
     } | null;
 }
 
+const STATUS_CONFIG = {
+    en_attente:          { label: 'En attente',       color: 'bg-yellow-500', badge: 'bg-yellow-100 text-yellow-800', icon: Clock },
+    en_preparation:      { label: 'En préparation',   color: 'bg-blue-500',   badge: 'bg-blue-100 text-blue-800',    icon: Package },
+    pret_pour_livraison: { label: 'Prêt à livrer',    color: 'bg-green-500',  badge: 'bg-green-100 text-green-800',  icon: Truck },
+    livre:               { label: 'Livré',             color: 'bg-gray-500',   badge: 'bg-gray-100 text-gray-700',    icon: CheckCircle },
+    annule:              { label: 'Annulé',            color: 'bg-red-500',    badge: 'bg-red-100 text-red-800',      icon: XCircle },
+} as const;
+
+const TIME_SLOTS = ['09:00 - 11:00', '11:00 - 13:00', '14:00 - 16:00', '16:00 - 18:00', '18:00 - 20:00'];
+
+const clientName = (order: Order) => {
+    if (!order.user) return 'Utilisateur supprimé';
+    return `${order.user.firstName ?? ''} ${order.user.lastName ?? ''}`.trim() || order.user.email;
+};
+
+const parseItems = (raw: string | null | undefined): { name: string; quantity: number; price: number }[] => {
+    if (!raw) return [];
+    try {
+        let parsed = JSON.parse(raw);
+        if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch { return []; }
+};
+
 export const ManageOrdersPage = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-    const [showModal, setShowModal] = useState(false);
     const [showDeliveryModal, setShowDeliveryModal] = useState(false);
     const [deliveryDate, setDeliveryDate] = useState('');
     const [deliveryTime, setDeliveryTime] = useState('');
 
-
-    const statusConfig = {
-        en_attente: { label: 'En attente', color: 'bg-yellow-500', icon: Clock },
-        en_preparation: { label: 'En préparation', color: 'bg-blue-500', icon: Package },
-        pret_pour_livraison: { label: 'Prêt pour livraison', color: 'bg-green-500', icon: Truck },
-        livre: { label: 'Livré', color: 'bg-gray-500', icon: CheckCircle },
-        annule: { label: 'Annulé', color: 'bg-red-500', icon: XCircle },
-    };
-
-    const timeSlots = [
-        '09:00 - 11:00',
-        '11:00 - 13:00',
-        '14:00 - 16:00',
-        '16:00 - 18:00',
-        '18:00 - 20:00',
-    ];
-
-    useEffect(() => {
-        fetchOrders();
-    }, [selectedStatus]);
+    useEffect(() => { fetchOrders(); }, [selectedStatus]);
 
     const fetchOrders = async () => {
         try {
@@ -64,11 +71,8 @@ export const ManageOrdersPage = () => {
             const url = selectedStatus === 'all'
                 ? `${API_URL}/orders/admin/all`
                 : `${API_URL}/orders/admin/all?status=${selectedStatus}`;
-
-            const response = await axios.get(url, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setOrders(response.data);
+            const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
+            setOrders(res.data);
         } catch (error) {
             console.error('Failed to fetch orders:', error);
             alert('Erreur lors du chargement des commandes');
@@ -79,7 +83,6 @@ export const ManageOrdersPage = () => {
 
     const handleStatusChange = async (orderId: number, newStatus: string) => {
         if (!window.confirm('Confirmer le changement de statut ?')) return;
-
         try {
             const token = localStorage.getItem('authToken');
             await axios.put(
@@ -87,10 +90,8 @@ export const ManageOrdersPage = () => {
                 { status: newStatus },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-
-            alert('Statut mis à jour avec succès !');
-            fetchOrders();
-            setShowModal(false);
+            await fetchOrders();
+            setSelectedOrder(prev => prev ? { ...prev, status: newStatus } : null);
         } catch (error) {
             console.error('Failed to update status:', error);
             alert('Erreur lors de la mise à jour');
@@ -102,24 +103,18 @@ export const ManageOrdersPage = () => {
             alert('Veuillez sélectionner une date et un créneau horaire');
             return;
         }
-
         try {
             const token = localStorage.getItem('authToken');
             await axios.put(
                 `${API_URL}/orders/${selectedOrder.id}/delivery`,
-                {
-                    deliveryDate,
-                    deliveryTimeSlot: deliveryTime
-                },
+                { deliveryDate, deliveryTimeSlot: deliveryTime },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-
             await sendNotification(selectedOrder.id, 'ready');
-
             alert('Créneau défini et email envoyé avec succès !');
-            fetchOrders();
+            await fetchOrders();
             setShowDeliveryModal(false);
-            setShowModal(false);
+            setSelectedOrder(null);
         } catch (error) {
             console.error('Failed to set delivery:', error);
             alert('Erreur lors de la définition du créneau');
@@ -141,30 +136,18 @@ export const ManageOrdersPage = () => {
 
     const handleMarkDelivered = async (orderId: number) => {
         if (!window.confirm('Marquer cette commande comme livrée ?')) return;
-
         try {
-            await handleStatusChange(orderId, 'livre');
+            const token = localStorage.getItem('authToken');
+            await axios.put(
+                `${API_URL}/orders/${orderId}/status`,
+                { status: 'livre' },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             await sendNotification(orderId, 'delivered');
-            alert('Commande marquée comme livrée et email de confirmation envoyé !');
+            await fetchOrders();
+            setSelectedOrder(prev => prev ? { ...prev, status: 'livre' } : null);
         } catch (error) {
             console.error('Failed to mark as delivered:', error);
-        }
-    };
-
-    const openOrderDetails = (order: Order) => {
-        setSelectedOrder(order);
-        setShowModal(true);
-    };
-
-    const parseItems = (raw: string | null | undefined): { name: string; quantity: number; price: number }[] => {
-        if (!raw) return [];
-        try {
-            let parsed = JSON.parse(raw);
-            // Handle double-stringified JSON (frontend sent JSON.stringify, orderController also JSON.stringified)
-            if (typeof parsed === 'string') parsed = JSON.parse(parsed);
-            return Array.isArray(parsed) ? parsed : [];
-        } catch {
-            return [];
         }
     };
 
@@ -181,237 +164,248 @@ export const ManageOrdersPage = () => {
     return (
         <AdminLayout>
             <div className="space-y-6">
-                <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-3">
-                    <div>
-                        <h2 className="text-3xl font-serif text-gray-800">Gestion des Commandes</h2>
-                        <p className="text-sm text-gray-500 mt-1">{orders.length} commande(s) total</p>
-                    </div>
+
+                {/* Header */}
+                <div className="border-b border-gray-200 pb-4">
+                    <h2 className="text-3xl font-serif text-gray-800">Gestion des Commandes</h2>
+                    <p className="text-sm text-gray-500 mt-1">{orders.length} commande(s)</p>
                 </div>
 
-                <div className="flex space-x-2 mb-6 overflow-x-auto">
+                {/* Filtres statut */}
+                <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2">
                     <button
                         onClick={() => setSelectedStatus('all')}
-                        className={`px-4 py-2 rounded-md transition-colors whitespace-nowrap ${
-                            selectedStatus === 'all'
-                                ? 'bg-gold text-dark font-semibold'
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        className={`px-4 py-2.5 rounded-md transition-colors text-sm font-medium ${
+                            selectedStatus === 'all' ? 'bg-gold text-dark' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                     >
                         Toutes ({orders.length})
                     </button>
-                    {Object.entries(statusConfig).map(([key, config]) => {
+                    {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
                         const count = orders.filter(o => o.status === key).length;
                         return (
                             <button
                                 key={key}
                                 onClick={() => setSelectedStatus(key)}
-                                className={`px-4 py-2 rounded-md transition-colors whitespace-nowrap flex items-center space-x-2 ${
-                                    selectedStatus === key
-                                        ? 'bg-gold text-dark font-semibold'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-md transition-colors text-sm font-medium ${
+                                    selectedStatus === key ? 'bg-gold text-dark' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                 }`}
                             >
-                                <span className={`w-2 h-2 rounded-full ${config.color}`}></span>
-                                <span>{config.label} ({count})</span>
+                                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${cfg.color}`} />
+                                {cfg.label} ({count})
                             </button>
                         );
                     })}
                 </div>
 
+                {/* Cards */}
                 {orders.length === 0 ? (
-                    <div className="bg-white p-12 rounded-lg shadow text-center">
-                        <Package size={48} className="mx-auto text-gray-400 mb-4" />
-                        <p className="text-gray-500 text-lg">Aucune commande pour ce filtre</p>
+                    <div className="bg-white p-12 rounded-lg shadow text-center border border-gray-100">
+                        <Package size={48} className="mx-auto text-gray-300 mb-4" />
+                        <p className="text-gray-500">Aucune commande pour ce filtre</p>
                     </div>
                 ) : (
-                    <div className="bg-white rounded-lg shadow overflow-hidden">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                            {orders.map((order) => {
-                                const config = statusConfig[order.status as keyof typeof statusConfig] || {
-                                    label: order.status,
-                                    color: 'bg-gray-500',
-                                    icon: Package
-                                };
-                                const Icon = config.icon;
-                                return (
-                                    <tr key={order.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            #{order.id}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">
-                                                {order.user ? `${order.user.firstName ?? ''} ${order.user.lastName ?? ''}`.trim() || '—' : 'Utilisateur supprimé'}
-                                            </div>
-                                            <div className="text-sm text-gray-500">{order.user?.email ?? '—'}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
-                                            {order.total.toFixed(2)}€
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-semibold text-white ${config.color}`}>
-                          <Icon size={14} />
-                          <span>{config.label}</span>
-                        </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {new Date(order.createdAt).toLocaleDateString('fr-FR')}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                            <button
-                                                onClick={() => openOrderDetails(order)}
-                                                className="inline-flex items-center space-x-1 px-3 py-1 bg-gold text-dark rounded hover:bg-gold/90 transition-colors font-medium"
-                                            >
-                                                <Eye size={16} />
-                                                <span>Détails</span>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            </tbody>
-                        </table>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {orders.map((order) => {
+                            const cfg = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG]
+                                ?? { label: order.status, badge: 'bg-gray-100 text-gray-700', icon: Package };
+                            const StatusIcon = cfg.icon;
+                            const items = parseItems(order.items);
+
+                            return (
+                                <button
+                                    key={order.id}
+                                    onClick={() => setSelectedOrder(order)}
+                                    className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 text-left hover:border-gold hover:shadow-md transition-all duration-200 group"
+                                >
+                                    {/* Top row */}
+                                    <div className="flex items-start justify-between mb-3">
+                                        <div>
+                                            <p className="font-bold text-gray-900 text-base">#{order.id}</p>
+                                            <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full mt-1 ${cfg.badge}`}>
+                                                <StatusIcon size={11} />
+                                                {cfg.label}
+                                            </span>
+                                        </div>
+                                        <ChevronRight size={16} className="text-gray-300 group-hover:text-gold transition-colors mt-1 flex-shrink-0" />
+                                    </div>
+
+                                    {/* Client */}
+                                    <p className="text-sm font-medium text-gray-800 flex items-center gap-1.5 mb-0.5">
+                                        <User size={13} className="text-gray-400 flex-shrink-0" />
+                                        <span className="truncate">{clientName(order)}</span>
+                                    </p>
+                                    <p className="text-xs text-gray-400 pl-5 truncate mb-3">
+                                        {order.user?.email ?? '—'}
+                                    </p>
+
+                                    {/* Footer */}
+                                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                                        <span className="text-lg font-bold text-gold">{order.total.toFixed(2)} €</span>
+                                        <div className="text-right">
+                                            <p className="text-xs text-gray-400">
+                                                {new Date(order.createdAt).toLocaleDateString('fr-FR')}
+                                            </p>
+                                            {items.length > 0 && (
+                                                <p className="text-xs text-gray-400">{items.length} article{items.length > 1 ? 's' : ''}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </button>
+                            );
+                        })}
                     </div>
                 )}
             </div>
 
-            {showModal && selectedOrder && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    {/* text-gray-900 esplicito: evita di ereditare text-white dal tema dark dell'app */}
-                    <div className="bg-white text-gray-900 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="p-6 border-b border-gray-200">
-                            <div className="flex justify-between items-center">
-                                <h3 className="text-2xl font-serif text-gray-800">Commande #{selectedOrder.id}</h3>
-                                <button
-                                    onClick={() => setShowModal(false)}
-                                    className="text-gray-400 hover:text-gray-600"
-                                >
-                                    <XCircle size={24} />
-                                </button>
+            {/* Slide panel */}
+            {selectedOrder && (
+                <>
+                    <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setSelectedOrder(null)} />
+
+                    <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 flex flex-col overflow-hidden">
+
+                        {/* Panel header */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+                            <div>
+                                <h3 className="font-serif text-lg text-gray-800">Commande #{selectedOrder.id}</h3>
+                                <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full mt-1 ${
+                                    (STATUS_CONFIG[selectedOrder.status as keyof typeof STATUS_CONFIG] ?? { badge: 'bg-gray-100 text-gray-700' }).badge
+                                }`}>
+                                    {(STATUS_CONFIG[selectedOrder.status as keyof typeof STATUS_CONFIG] ?? { label: selectedOrder.status }).label}
+                                </span>
                             </div>
+                            <button onClick={() => setSelectedOrder(null)} className="text-gray-400 hover:text-gray-600 transition-colors p-1">
+                                <X size={20} />
+                            </button>
                         </div>
 
-                        <div className="p-6 space-y-6">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <h4 className="font-semibold text-gray-700 mb-2">Client</h4>
-                                    {selectedOrder.user ? (
-                                        <>
-                                            <p className="text-sm text-gray-900">
-                                                {`${selectedOrder.user.firstName ?? ''} ${selectedOrder.user.lastName ?? ''}`.trim() || '—'}
-                                            </p>
-                                            <p className="text-sm text-gray-600">{selectedOrder.user.email}</p>
-                                        </>
-                                    ) : (
-                                        <p className="text-sm text-red-500 italic">Utilisateur supprimé</p>
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+
+                            {/* Client */}
+                            <section>
+                                <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Client</h4>
+                                <div className="space-y-1.5 text-sm text-gray-700">
+                                    <p className="flex items-center gap-2">
+                                        <User size={14} className="text-gray-400" />
+                                        <span className="font-medium">{clientName(selectedOrder)}</span>
+                                    </p>
+                                    {selectedOrder.user && (
+                                        <p className="pl-5 text-gray-500">{selectedOrder.user.email}</p>
                                     )}
-                                    <p className="text-sm text-gray-600">{selectedOrder.phone}</p>
+                                    <p className="flex items-center gap-2">
+                                        <Mail size={14} className="text-gray-400" />
+                                        {selectedOrder.phone}
+                                    </p>
                                 </div>
-                                <div>
-                                    <h4 className="font-semibold text-gray-700 mb-2">Livraison</h4>
-                                    <p className="text-sm text-gray-900">{selectedOrder.deliveryAddress}</p>
-                                    <p className="text-sm text-gray-600">{selectedOrder.postalCode}</p>
+                            </section>
+
+                            {/* Livraison */}
+                            <section>
+                                <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Livraison</h4>
+                                <div className="space-y-1.5 text-sm text-gray-700">
+                                    <p className="flex items-start gap-2">
+                                        <MapPin size={14} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                                        <span>{selectedOrder.deliveryAddress}, {selectedOrder.postalCode}</span>
+                                    </p>
                                     {selectedOrder.deliveryDate && (
-                                        <p className="text-sm text-green-600 font-semibold mt-2">
-                                            📅 {selectedOrder.deliveryDate} — {selectedOrder.deliveryTimeSlot}
+                                        <p className="pl-5 text-green-700 font-semibold">
+                                            {selectedOrder.deliveryDate} — {selectedOrder.deliveryTimeSlot}
                                         </p>
                                     )}
                                 </div>
-                            </div>
+                            </section>
 
-                            <div>
-                                <h4 className="font-semibold text-gray-700 mb-2">Produits</h4>
-                                <div className="bg-gray-50 rounded p-4 space-y-2">
+                            {/* Produits */}
+                            <section>
+                                <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Produits</h4>
+                                <div className="bg-gray-50 rounded-lg border border-gray-100 overflow-hidden">
                                     {parseItems(selectedOrder.items).length === 0 ? (
-                                        <p className="text-sm text-gray-500 italic">Données produits non disponibles</p>
+                                        <p className="p-4 text-sm text-gray-400 italic">Données non disponibles</p>
                                     ) : (
-                                        parseItems(selectedOrder.items).map((item, idx) => (
-                                            <div key={idx} className="flex justify-between text-sm">
-                                                <span className="text-gray-800">{item.name} x{item.quantity}</span>
-                                                <span className="font-semibold text-gray-900">{(item.price * item.quantity).toFixed(2)}€</span>
+                                        <>
+                                            {parseItems(selectedOrder.items).map((item, idx) => (
+                                                <div key={idx} className="flex justify-between text-sm px-4 py-2.5 border-b border-gray-100 last:border-0">
+                                                    <span className="text-gray-700">{item.name} <span className="text-gray-400">×{item.quantity}</span></span>
+                                                    <span className="font-semibold text-gray-900">{(item.price * item.quantity).toFixed(2)} €</span>
+                                                </div>
+                                            ))}
+                                            <div className="flex justify-between px-4 py-3 bg-gray-100 font-bold text-gray-900 text-sm">
+                                                <span>Total</span>
+                                                <span>{selectedOrder.total.toFixed(2)} €</span>
                                             </div>
-                                        ))
+                                        </>
                                     )}
-                                    <div className="border-t border-gray-300 pt-2 mt-2 flex justify-between font-bold text-gray-900">
-                                        <span>Total</span>
-                                        <span>{selectedOrder.total.toFixed(2)}€</span>
-                                    </div>
                                 </div>
-                            </div>
+                            </section>
 
+                            {/* Notes */}
                             {selectedOrder.notes && (
-                                <div>
-                                    <h4 className="font-semibold text-gray-700 mb-2">Notes</h4>
-                                    <p className="text-sm text-gray-800 bg-yellow-50 p-3 rounded border border-yellow-200">
+                                <section>
+                                    <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Notes</h4>
+                                    <p className="text-sm text-gray-700 bg-yellow-50 p-3 rounded-lg border border-yellow-200 flex gap-2">
+                                        <StickyNote size={14} className="text-yellow-600 flex-shrink-0 mt-0.5" />
                                         {selectedOrder.notes}
                                     </p>
-                                </div>
+                                </section>
                             )}
 
-                            <div>
-                                <h4 className="font-semibold text-gray-700 mb-3">Changer le statut</h4>
-                                <div className="grid grid-cols-2 gap-3">
-                                    {Object.entries(statusConfig).map(([key, config]) => {
-                                        const Icon = config.icon;
-                                        const isCurrentStatus = selectedOrder.status === key;
+                            {/* Changer statut */}
+                            <section>
+                                <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Changer le statut</h4>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
+                                        const Icon = cfg.icon;
+                                        const isCurrent = selectedOrder.status === key;
                                         return (
                                             <button
                                                 key={key}
                                                 onClick={() => handleStatusChange(selectedOrder.id, key)}
-                                                disabled={isCurrentStatus}
-                                                className={`flex items-center space-x-2 px-4 py-3 rounded-md transition-colors ${
-                                                    isCurrentStatus
-                                                        ? 'bg-gray-300 cursor-not-allowed'
-                                                        : `${config.color} text-white hover:opacity-90`
+                                                disabled={isCurrent}
+                                                className={`flex items-center gap-2 px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                                                    isCurrent
+                                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                        : `${cfg.color} text-white hover:opacity-90`
                                                 }`}
                                             >
-                                                <Icon size={18} />
-                                                <span className="text-sm font-medium">{config.label}</span>
+                                                <Icon size={15} />
+                                                {cfg.label}
                                             </button>
                                         );
                                     })}
                                 </div>
-                            </div>
+                            </section>
 
+                            {/* Actions contextuelles */}
                             {selectedOrder.status === 'en_preparation' && (
                                 <button
                                     onClick={() => setShowDeliveryModal(true)}
-                                    className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
                                 >
-                                    <Truck size={20} />
-                                    <span>Définir créneau de livraison</span>
+                                    <Truck size={18} />
+                                    Définir créneau de livraison
                                 </button>
                             )}
 
                             {selectedOrder.status === 'pret_pour_livraison' && (
                                 <button
                                     onClick={() => handleMarkDelivered(selectedOrder.id)}
-                                    className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+                                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
                                 >
-                                    <CheckCircle size={20} />
-                                    <span>Marquer comme livré</span>
+                                    <CheckCircle size={18} />
+                                    Marquer comme livré
                                 </button>
                             )}
                         </div>
                     </div>
-                </div>
+                </>
             )}
 
+            {/* Delivery modal (centré — reste inchangé) */}
             {showDeliveryModal && selectedOrder && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
                     <div className="bg-white text-gray-900 rounded-lg shadow-xl max-w-md w-full p-6">
                         <h3 className="text-xl font-serif text-gray-800 mb-4">Définir le créneau de livraison</h3>
-
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Date de livraison</label>
@@ -423,7 +417,6 @@ export const ManageOrdersPage = () => {
                                     className="w-full px-4 py-2 border border-gray-300 rounded-md text-gray-900"
                                 />
                             </div>
-
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Créneau horaire</label>
                                 <select
@@ -432,23 +425,22 @@ export const ManageOrdersPage = () => {
                                     className="w-full px-4 py-2 border border-gray-300 rounded-md text-gray-900"
                                 >
                                     <option value="">Sélectionner un créneau</option>
-                                    {timeSlots.map((slot) => (
+                                    {TIME_SLOTS.map((slot) => (
                                         <option key={slot} value={slot}>{slot}</option>
                                     ))}
                                 </select>
                             </div>
-
-                            <div className="flex space-x-3 pt-4">
+                            <div className="flex gap-3 pt-2">
                                 <button
                                     onClick={handleSetDelivery}
-                                    className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium"
                                 >
-                                    <Mail size={18} />
-                                    <span>Confirmer et envoyer email</span>
+                                    <Mail size={16} />
+                                    Confirmer et envoyer email
                                 </button>
                                 <button
                                     onClick={() => setShowDeliveryModal(false)}
-                                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
                                 >
                                     Annuler
                                 </button>
