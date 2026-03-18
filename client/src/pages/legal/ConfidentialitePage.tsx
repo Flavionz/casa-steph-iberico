@@ -17,9 +17,10 @@ export const ConfidentialitePage = () => {
                         <strong> auberge-espagnol.fr</strong> est :
                     </p>
                     <ul className="mt-2 space-y-1 list-none">
-                        <li><span className="text-gray-400">Identité :</span> <Placeholder label="NOM DE L'ENTREPRISE ou NOM PRÉNOM" /></li>
-                        <li><span className="text-gray-400">Adresse :</span> <Placeholder label="ADRESSE COMPLÈTE" /></li>
+                        <li><span className="text-gray-400">Identité :</span> MILHAU Stéphane — L'Auberge Espagnole</li>
+                        <li><span className="text-gray-400">Adresse :</span> 33 Rue des Chenevières, 57140 La Maxe</li>
                         <li><span className="text-gray-400">Email :</span> lauberge.espagnole.metz@gmail.com</li>
+                        <li><span className="text-gray-400">Téléphone :</span> +33 6 89 66 91 15</li>
                     </ul>
                 </>
             ),
@@ -32,7 +33,7 @@ export const ConfidentialitePage = () => {
                     <ul className="mt-2 space-y-2 list-disc list-inside">
                         <li>
                             <strong>Données de compte :</strong> adresse email, mot de passe (chiffré),
-                            prénom, nom, numéro de téléphone
+                            civilité, prénom, nom, numéro de téléphone
                         </li>
                         <li>
                             <strong>Données de livraison :</strong> adresse postale, code postal, ville
@@ -83,9 +84,9 @@ export const ConfidentialitePage = () => {
             title: 'Durée de conservation',
             content: (
                 <ul className="space-y-1 list-disc list-inside">
-                    <li>Données de compte : jusqu'à suppression du compte ou <Placeholder label="X ans" /> d'inactivité</li>
-                    <li>Données de commande : 10 ans (obligation comptable)</li>
-                    <li>Cookies de navigation : <Placeholder label="X mois" /></li>
+                    <li>Données de compte : jusqu'à suppression du compte ou <strong>3 ans</strong> d'inactivité</li>
+                    <li>Données de commande : <strong>10 ans</strong> (obligation comptable légale)</li>
+                    <li>Cookies de navigation : <strong>13 mois</strong> maximum (recommandation CNIL)</li>
                 </ul>
             ),
         },
@@ -154,8 +155,8 @@ export const ConfidentialitePage = () => {
                             </p>
                         </li>
                     </ul>
-                    <p className="mt-3">
-                        <Placeholder label="Ajouter ici si vous utilisez Google Analytics, Meta Pixel, ou d'autres outils de tracking tiers" />
+                    <p className="mt-3 text-gray-400 text-xs">
+                        Ce site n'utilise pas de cookies de tracking ou d'analyse tiers (Google Analytics, Meta Pixel, etc.).
                     </p>
                 </>
             ),
@@ -176,7 +177,7 @@ export const ConfidentialitePage = () => {
     return (
         <LegalLayout
             title="Politique de Confidentialité"
-            lastUpdated="À compléter"
+            lastUpdated="18 mars 2026"
             sections={sections}
         />
     );

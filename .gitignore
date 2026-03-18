@@ -47,6 +47,7 @@ pnpm-lock.yaml
 # IDEs
 .idea/
 .vscode/
+.claude/
 *.iml
 *.swp
 *.swo

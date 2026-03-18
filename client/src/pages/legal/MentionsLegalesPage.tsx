@@ -14,14 +14,16 @@ export const MentionsLegalesPage = () => {
                 <>
                     <p>Le site <strong>auberge-espagnol.fr</strong> est édité par :</p>
                     <ul className="mt-2 space-y-1 list-none">
-                        <li><span className="text-gray-400">Raison sociale :</span> <Placeholder label="NOM DE L'ENTREPRISE ou NOM PRÉNOM" /></li>
-                        <li><span className="text-gray-400">Forme juridique :</span> <Placeholder label="SARL / SAS / Auto-entrepreneur / etc." /></li>
-                        <li><span className="text-gray-400">Siège social :</span> <Placeholder label="ADRESSE COMPLÈTE" /></li>
-                        <li><span className="text-gray-400">SIRET :</span> <Placeholder label="XXX XXX XXX XXXXX" /></li>
-                        <li><span className="text-gray-400">Numéro de TVA intracommunautaire :</span> <Placeholder label="FR XX XXXXXXXXX" /></li>
+                        <li><span className="text-gray-400">Nom commercial :</span> L'Auberge Espagnole</li>
+                        <li><span className="text-gray-400">Titulaire :</span> MILHAU Stéphane, Maurice, Robert</li>
+                        <li><span className="text-gray-400">Forme juridique :</span> Micro-entreprise (entreprise individuelle)</li>
+                        <li><span className="text-gray-400">Siège social :</span> 33 Rue des Chenevières, 57140 La Maxe</li>
+                        <li><span className="text-gray-400">SIREN :</span> 519 942 924</li>
+                        <li><span className="text-gray-400">N° RCS :</span> 519 942 924 R.C.S. Metz</li>
+                        <li><span className="text-gray-400">TVA :</span> TVA non applicable — art. 293 B du CGI</li>
                         <li><span className="text-gray-400">Email :</span> lauberge.espagnole.metz@gmail.com</li>
-                        <li><span className="text-gray-400">Téléphone :</span> <Placeholder label="+33 X XX XX XX XX" /></li>
-                        <li><span className="text-gray-400">Directeur de publication :</span> <Placeholder label="NOM PRÉNOM" /></li>
+                        <li><span className="text-gray-400">Téléphone :</span> +33 6 89 66 91 15</li>
+                        <li><span className="text-gray-400">Directeur de publication :</span> MILHAU Stéphane</li>
                     </ul>
                 </>
             ),
@@ -75,7 +77,7 @@ export const MentionsLegalesPage = () => {
     return (
         <LegalLayout
             title="Mentions Légales"
-            lastUpdated="À compléter"
+            lastUpdated="18 mars 2026"
             sections={sections}
         />
     );
