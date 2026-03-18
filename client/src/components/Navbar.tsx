@@ -12,6 +12,10 @@ export const Navbar = () => {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
+    setIsScrolled(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
@@ -22,7 +26,7 @@ export const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
           isScrolled ? 'bg-dark/95 backdrop-blur-sm py-3 shadow-md' : 'bg-transparent py-5'
       }`}>
         <div className="container-custom flex items-center justify-between">
