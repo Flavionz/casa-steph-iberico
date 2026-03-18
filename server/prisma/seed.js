@@ -27,7 +27,7 @@ async function main() {
 
     console.log('✅ Catégories créées.');
 
-    // ── Produits ───────────────────────────────────────────────────────────────
+    // ── Produits ordinables ────────────────────────────────────────────────────
     const products = [
         {
             name: 'Jambon Ibérique Pata Negra',
@@ -35,7 +35,7 @@ async function main() {
             price: 89.90,
             stock: 10,
             categoryId: catCharcuterie.id,
-            image: 'https://images.unsplash.com/photo-1590558620893-6c8206411267?q=80&w=600&auto=format',
+            image: 'https://picsum.photos/seed/jambon/800/600',
         },
         {
             name: 'Manchego Affiné 12 Mois',
@@ -43,7 +43,7 @@ async function main() {
             price: 24.50,
             stock: 25,
             categoryId: catCharcuterie.id,
-            image: 'https://images.unsplash.com/photo-1624806992066-5d519d559483?q=80&w=600&auto=format',
+            image: 'https://picsum.photos/seed/manchego/800/600',
         },
         {
             name: 'Rioja Reserva 2018',
@@ -51,15 +51,23 @@ async function main() {
             price: 32.75,
             stock: 60,
             categoryId: catBoissons.id,
-            image: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?q=80&w=600&auto=format',
+            image: 'https://picsum.photos/seed/rioja/800/600',
+        },
+        {
+            name: 'Planche',
+            description: "Une sélection généreuse de charcuteries et fromages espagnols soigneusement choisis : jambon ibérique, lomo, chorizo artisanal et fromage manchego affiné. Une invitation au voyage, à partager sans modération.",
+            price: 28.90,
+            stock: 12,
+            categoryId: catCharcuterie.id,
+            image: 'https://res.cloudinary.com/dxxsgbitl/image/upload/v1773837979/1773823181571-planche_1_persona_hxrpke.png',
         },
         {
             name: 'La Planche des Deux',
-            description: "Une planche généreuse pour deux, composée d'une sélection de charcuteries ibériques — jambon, lomo, chorizo — accompagnée de fromages affinés et de conserves espagnoles. Parfaite pour un apéritif dînatoire ou un moment gourmand en tête-à-tête.",
+            description: "Une planche généreuse pour deux, composée d'une sélection de charcuteries ibériques, jambon, lomo, chorizo, accompagnée de fromages affinés et de conserves espagnoles. Parfaite pour un apéritif dînatoire ou un moment gourmand en tête-à-tête.",
             price: 49.90,
             stock: 8,
             categoryId: catCharcuterie.id,
-            image: 'https://images.unsplash.com/photo-1528736235302-52922df5c122?q=80&w=600&auto=format',
+            image: 'https://res.cloudinary.com/dxxsgbitl/image/upload/v1773837978/1773823400857-planche2_criypv.jpg',
         },
         {
             name: 'Chorizo Ibérique Extra',
@@ -67,7 +75,7 @@ async function main() {
             price: 18.50,
             stock: 30,
             categoryId: catCharcuterie.id,
-            image: 'https://images.unsplash.com/photo-1601648764658-cf37e8c89b70?q=80&w=600&auto=format',
+            image: 'https://picsum.photos/seed/chorizo/800/600',
         },
         {
             name: 'Pimientos del Piquillo',
@@ -75,16 +83,77 @@ async function main() {
             price: 8.90,
             stock: 45,
             categoryId: catConserves.id,
-            image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?q=80&w=600&auto=format',
+            image: 'https://picsum.photos/seed/pimientos/800/600',
         },
     ];
 
     for (const product of products) {
         const exists = await prisma.product.findFirst({ where: { name: product.name } });
-        if (!exists) await prisma.product.create({ data: product });
+        if (exists) {
+            await prisma.product.update({
+                where: { id: exists.id },
+                data: { image: product.image },
+            });
+        } else {
+            await prisma.product.create({ data: product });
+        }
     }
 
     console.log('✅ Produits créés.');
+
+    // ── Produits vitrine (homepage) ────────────────────────────────────────────
+    const featured = [
+        {
+            title: 'Charcuterie Artisanale',
+            category: 'Charcuterie',
+            position: 1,
+            image: 'https://res.cloudinary.com/dxxsgbitl/image/upload/v1773837978/1772137345523-572062357_1380595824073545_8929580553375581405_n_e9vx4h.jpg',
+        },
+        {
+            title: 'Sélection de Fromages',
+            category: 'Fromages',
+            position: 2,
+            image: 'https://res.cloudinary.com/dxxsgbitl/image/upload/v1773837978/fromage-selection_xrawr4.jpg',
+        },
+        {
+            title: 'Fromages Affinés',
+            category: 'Fromages',
+            position: 3,
+            image: 'https://res.cloudinary.com/dxxsgbitl/image/upload/v1773837990/fromage-artisanal_plmumc.jpg',
+        },
+        {
+            title: "Vins d'Exception",
+            category: 'Vins',
+            position: 4,
+            image: 'https://res.cloudinary.com/dxxsgbitl/image/upload/v1773837979/vins-selection_jr2ulh.jpg',
+        },
+        {
+            title: 'Épicerie Fine',
+            category: 'Épicerie',
+            position: 5,
+            image: 'https://res.cloudinary.com/dxxsgbitl/image/upload/v1773837979/epicerie-fine_vr3nrb.jpg',
+        },
+        {
+            title: 'Sangria Authentique',
+            category: 'Boissons',
+            position: 6,
+            image: 'https://res.cloudinary.com/dxxsgbitl/image/upload/v1773837979/sangria-lolailo_co05q5.jpg',
+        },
+    ];
+
+    for (const item of featured) {
+        const exists = await prisma.featuredProduct.findFirst({ where: { title: item.title } });
+        if (exists) {
+            await prisma.featuredProduct.update({
+                where: { id: exists.id },
+                data: { image: item.image, isActive: true },
+            });
+        } else {
+            await prisma.featuredProduct.create({ data: { ...item, isActive: true } });
+        }
+    }
+
+    console.log('✅ Produits vitrine créés.');
 
     // ── Utilisateurs demo ──────────────────────────────────────────────────────
     const adminPassword  = await bcrypt.hash('admin123', 10);
