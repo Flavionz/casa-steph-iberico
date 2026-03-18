@@ -77,11 +77,14 @@ export const Footer = () => {
               <h4 className="text-white text-sm uppercase tracking-wider mb-4">
                 Contactez-nous
               </h4>
-              <a href="https://wa.me/33XXXXXXXXX" target="_blank" rel="noopener noreferrer" className="inline-flex items-center space-x-2 text-gray-400 hover:text-gold transition-colors group">
+              <a href="https://wa.me/33689669115" target="_blank" rel="noopener noreferrer" className="inline-flex items-center space-x-2 text-gray-400 hover:text-gold transition-colors group">
                 <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center group-hover:bg-green-500 transition-colors">
                   <Phone size={20} className="text-white" />
                 </div>
-                <span className="text-sm font-medium">WhatsApp</span>
+                <div>
+                  <p className="text-sm font-medium text-white">WhatsApp</p>
+                  <p className="text-xs text-gray-400">+33 6 89 66 91 15</p>
+                </div>
               </a>
             </div>
           </div>
