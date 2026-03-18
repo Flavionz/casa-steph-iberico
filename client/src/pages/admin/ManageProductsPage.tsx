@@ -110,90 +110,67 @@ export const ManageProductsPage = () => {
                         </Link>
                     </div>
                 ) : (
-                    <div className="bg-white p-6 rounded-lg shadow-xl overflow-x-auto border border-gray-100">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Image
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Nom
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Catégorie
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Prix (€)
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Stock
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                            {products.map((product) => (
-                                <tr
-                                    key={product.id}
-                                    className={product.stock === 0 ? 'bg-red-50/50' : 'hover:bg-gray-50'}
-                                >
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <img
-                                            src={product.image || 'https://placehold.co/60x60/e5e7eb/6b7280?text=No+Image'}
-                                            alt={product.name}
-                                            className="w-12 h-12 object-cover rounded"
-                                        />
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-900">
-                                        <div className="font-medium">{product.name}</div>
-                                        <div className="text-gray-500 text-xs truncate max-w-xs">
-                                            {product.description}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <span className="px-2 py-1 bg-gray-100 rounded text-xs font-medium">
-                        {product.category.name}
-                      </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {products.map((product) => (
+                            <div
+                                key={product.id}
+                                className={`bg-white rounded-lg shadow-lg overflow-hidden border flex flex-col ${
+                                    product.stock === 0 ? 'border-red-200' : 'border-gray-200'
+                                }`}
+                            >
+                                {/* Image */}
+                                <div className="relative h-44">
+                                    <img
+                                        src={product.image || 'https://placehold.co/400x200/e5e7eb/6b7280?text=No+Image'}
+                                        alt={product.name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <span className="absolute top-2 left-2 bg-gold text-dark text-xs font-bold px-2 py-1 rounded">
+                                        {product.category.name}
+                                    </span>
+                                    <span className={`absolute top-2 right-2 text-xs font-bold px-2 py-1 rounded ${
+                                        product.stock > 10
+                                            ? 'bg-green-100 text-green-800'
+                                            : product.stock > 0
+                                                ? 'bg-yellow-100 text-yellow-800'
+                                                : 'bg-red-100 text-red-800'
+                                    }`}>
+                                        {product.stock > 0 ? `${product.stock} en stock` : 'Rupture'}
+                                    </span>
+                                </div>
+
+                                {/* Infos */}
+                                <div className="p-4 flex flex-col flex-1">
+                                    <h3 className="font-serif text-base text-gray-800 font-semibold mb-1 leading-tight">
+                                        {product.name}
+                                    </h3>
+                                    <p className="text-gray-500 text-xs line-clamp-2 mb-3">
+                                        {product.description}
+                                    </p>
+                                    <p className="text-gold font-bold text-lg mt-auto mb-4">
                                         {product.price.toFixed(2)} €
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              product.stock > 10
-                                  ? 'bg-green-100 text-green-800'
-                                  : product.stock > 0
-                                      ? 'bg-yellow-100 text-yellow-800'
-                                      : 'bg-red-100 text-red-800'
-                          }`}
-                      >
-                        {product.stock > 0 ? product.stock : 'Rupture'}
-                      </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                    </p>
+
+                                    {/* Actions */}
+                                    <div className="flex gap-2">
                                         <Link
                                             to={`/admin/products/edit/${product.id}`}
-                                            className="inline-block text-gold hover:text-yellow-600 p-1 rounded-md hover:bg-yellow-50 transition-colors"
-                                            aria-label={`Modifier ${product.name}`}
+                                            className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-gold text-gold rounded-md hover:bg-gold hover:text-dark transition-colors text-sm font-medium"
                                         >
-                                            <Edit size={16} />
+                                            <Edit size={15} />
+                                            Modifier
                                         </Link>
                                         <button
                                             onClick={() => handleDelete(product.id, product.name)}
-                                            className="text-red-600 hover:text-red-900 p-1 rounded-md hover:bg-red-50 transition-colors"
-                                            aria-label={`Supprimer ${product.name}`}
+                                            className="flex-1 flex items-center justify-center gap-2 py-2.5 border border-red-400 text-red-500 rounded-md hover:bg-red-500 hover:text-white transition-colors text-sm font-medium"
                                         >
-                                            <Trash2 size={16} />
+                                            <Trash2 size={15} />
+                                            Supprimer
                                         </button>
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>
