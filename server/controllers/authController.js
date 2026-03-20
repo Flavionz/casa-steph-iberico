@@ -1,7 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { sendPasswordResetEmail } = require('../services/emailService');
+const { sendPasswordResetEmail, sendWelcomeEmail } = require('../services/emailService');
 
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -47,6 +47,9 @@ const register = async (req, res) => {
             JWT_SECRET,
             { expiresIn: '7d' }
         );
+
+        // Send welcome email (non-blocking)
+        sendWelcomeEmail(user).catch(err => console.error('Welcome email error:', err));
 
         res.status(201).json({
             message: 'Compte créé avec succès',

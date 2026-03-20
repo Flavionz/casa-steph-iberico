@@ -134,8 +134,63 @@ const sendPasswordResetEmail = async (user, resetLink) => {
     }
 };
 
+const sendWelcomeEmail = async (user) => {
+    const mailOptions = {
+        from: process.env.SMTP_FROM || '"L\'Auberge Espagnole" <contact@auberge-espagnol.fr>',
+        to: user.email,
+        subject: 'Bienvenue chez L\'Auberge Espagnole !',
+        html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #1a1714; padding: 30px; text-align: center;">
+          <h1 style="color: #C9A66B; margin: 0; font-size: 24px;">L'Auberge Espagnole</h1>
+          <p style="color: #888; margin: 5px 0 0 0; font-size: 13px;">Épicerie fine · Metz</p>
+        </div>
+
+        <div style="padding: 40px 30px;">
+          <h2 style="color: #1a1714;">Bienvenue${user.firstName ? ' ' + user.firstName : ''} !</h2>
+
+          <p>Votre compte a été créé avec succès. Vous pouvez dès maintenant parcourir notre boutique et passer commande.</p>
+
+          <div style="background-color: #f9f6f2; border-left: 4px solid #C9A66B; padding: 20px; margin: 30px 0; border-radius: 0 8px 8px 0;">
+            <p style="margin: 0 0 8px 0;"><strong>Votre email :</strong> ${user.email}</p>
+            <p style="margin: 0; color: #666; font-size: 13px;">Conservez ces informations pour vous connecter.</p>
+          </div>
+
+          <div style="text-align: center; margin: 35px 0;">
+            <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}/boutique"
+               style="background-color: #C9A66B; color: #1a1714; padding: 14px 36px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 16px;">
+              Découvrir la boutique
+            </a>
+          </div>
+
+          <p style="color: #666; font-size: 14px;">
+            Des questions ? Contactez-nous par WhatsApp au <strong>+33 6 89 66 91 15</strong> ou par email à <a href="mailto:lauberge.espagnole.metz@gmail.com" style="color: #C9A66B;">lauberge.espagnole.metz@gmail.com</a>.
+          </p>
+        </div>
+
+        <div style="background-color: #f5f5f5; padding: 20px 30px; text-align: center;">
+          <p style="margin: 0; font-size: 12px; color: #999;">
+            L'Auberge Espagnole — Metz, France<br>
+            <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}" style="color: #C9A66B; text-decoration: none;">auberge-ecommerce.vercel.app</a>
+          </p>
+        </div>
+      </div>
+    `,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`✅ Welcome email sent to ${user.email}`);
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Welcome email failed:', error);
+        return { success: false, error };
+    }
+};
+
 module.exports = {
     sendOrderReadyEmail,
     sendOrderDeliveredEmail,
     sendPasswordResetEmail,
+    sendWelcomeEmail,
 };
