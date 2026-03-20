@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const { sendOrderConfirmationEmail } = require('../services/emailService');
 
 const prisma = new PrismaClient();
 
@@ -59,7 +60,8 @@ const createOrder = async (req, res) => {
 
         const deliveryFee = calcDeliveryFee(postalCode, cartTotal);
         const orderTotal  = cartTotal + deliveryFee;
-        const itemsString = JSON.stringify(items);
+        // items arrives already stringified from the client
+        const itemsString = typeof items === 'string' ? items : JSON.stringify(items);
 
         const order = await prisma.order.create({
             data: {
@@ -82,6 +84,9 @@ const createOrder = async (req, res) => {
             where: { id: req.user.userId },
             select: { email: true, firstName: true, lastName: true }
         });
+
+        // Send order confirmation email (non-blocking)
+        sendOrderConfirmationEmail(order, user).catch(err => console.error('Order confirmation email error:', err));
 
         res.status(201).json({
             message: 'Commande créée avec succès',
