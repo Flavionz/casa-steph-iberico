@@ -467,7 +467,7 @@ export const CheckoutPage = () => {
                                                         <span className="text-2xl">💶</span>
                                                         <span className="text-white font-semibold">Paiement à la livraison</span>
                                                     </div>
-                                                    <p className="text-sm text-gray-400">Espèces lors de la livraison</p>
+                                                    <p className="text-sm text-gray-300">Espèces lors de la livraison</p>
                                                 </div>
                                             </label>
                                         ) : (
@@ -499,13 +499,9 @@ export const CheckoutPage = () => {
                                                 <div className="flex items-center space-x-2 mb-1">
                                                     <span className="text-2xl">💳</span>
                                                     <span className="text-white font-semibold">Paiement en ligne par carte</span>
-                                                    <span className="px-2 py-0.5 bg-green-500/20 border border-green-500 text-green-300 text-xs rounded-full">
-                                                        Disponible
-                                                    </span>
                                                 </div>
-                                                <p className="text-sm text-gray-400">
-                                                    Visa, Mastercard, American Express
-                                                </p>
+                                                <p className="text-sm text-gray-300">Visa, Mastercard, American Express</p>
+                                                <p className="text-xs text-gray-300 mt-1">Paiement sécurisé géré par Stripe. Vos données bancaires ne transitent jamais par nos serveurs. Aucun compte Stripe requis.</p>
                                             </div>
                                         </label>
                                     </div>
