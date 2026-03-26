@@ -1,6 +1,9 @@
 const express = require('express');
 const Stripe = require('stripe');
+const { PrismaClient } = require('@prisma/client');
 const { authenticate } = require('../middleware/authMiddleware');
+
+const prisma = new PrismaClient();
 
 const router = express.Router();
 
@@ -40,7 +43,7 @@ router.post('/create-intent', authenticate, async (req, res) => {
 
 // POST /api/payments/webhook
 // Gestisce gli eventi Stripe (configurare STRIPE_WEBHOOK_SECRET per produzione)
-router.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -58,17 +61,32 @@ router.post('/webhook', express.raw({ type: 'application/json' }), (req, res) =>
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    switch (event.type) {
-        case 'payment_intent.succeeded':
-            // TODO: aggiornare paymentStatus dell'ordine a 'paid'
-            console.log('Payment succeeded:', event.data.object.id);
-            break;
-        case 'payment_intent.payment_failed':
-            // TODO: aggiornare paymentStatus dell'ordine a 'failed'
-            console.log('Payment failed:', event.data.object.id);
-            break;
-        default:
-            break;
+    const paymentIntent = event.data.object;
+
+    try {
+        switch (event.type) {
+            case 'payment_intent.succeeded':
+                await prisma.order.updateMany({
+                    where: { paymentIntentId: paymentIntent.id },
+                    data: { paymentStatus: 'paid' }
+                });
+                console.log('Webhook: payment succeeded, order updated —', paymentIntent.id);
+                break;
+
+            case 'payment_intent.payment_failed':
+                await prisma.order.updateMany({
+                    where: { paymentIntentId: paymentIntent.id },
+                    data: { paymentStatus: 'failed' }
+                });
+                console.log('Webhook: payment failed, order updated —', paymentIntent.id);
+                break;
+
+            default:
+                break;
+        }
+    } catch (err) {
+        console.error('Webhook DB update error:', err);
+        return res.status(500).json({ error: 'Webhook handler error' });
     }
 
     res.json({ received: true });
