@@ -32,7 +32,7 @@ app.use(cors({
     },
     credentials: true,
 }));
-// Il webhook Stripe richiede il body raw — va registrato prima di express.json()
+// Stripe webhook requires raw body — must be registered before express.json()
 app.use('/api/payments/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -44,7 +44,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 
 app.get('/', (req, res) => {
-    res.send('Hola! Il server Auberge Espagnol è online 🇪🇸');
+    res.send('L\'Auberge Espagnole API is running 🇪🇸');
 });
 
 app.get('/api/categories', async (req, res) => {
@@ -567,11 +567,7 @@ app.post('/api/orders/:id/notify', authenticate, isAdmin, async (req, res) => {
 
 if (require.main === module) {
     app.listen(PORT, () => {
-        console.log(`Server avviato su http://localhost:${PORT}`);
-        console.log(`Auth API disponibile su http://localhost:${PORT}/api/auth`);
-        console.log(`User API disponibile su http://localhost:${PORT}/api/user`);
-        console.log(`Orders API disponibile su http://localhost:${PORT}/api/orders`);
-        console.log(`Featured API disponibile su http://localhost:${PORT}/api/featured`);
+        console.log(`Server running on http://localhost:${PORT}`);
     });
 }
 

@@ -5,7 +5,7 @@
  * The middleware rejects requests before any DB call is made.
  */
 
-// Imposta il secret PRIMA che dotenv carichi il .env (dotenv non sovrascrive env già impostate)
+// Set the secret BEFORE dotenv loads .env (dotenv does not override already-set env vars)
 const TEST_SECRET = 'test-secret-key-for-jest';
 process.env.JWT_SECRET = TEST_SECRET;
 
@@ -38,14 +38,14 @@ const request = require('supertest');
 const jwt = require('jsonwebtoken');
 const app = require('../index');
 
-// Token firmato con ruolo "user" (non admin)
+// Token signed with role "user" (not admin)
 const userToken = jwt.sign(
     { userId: 1, email: 'user@test.com', role: 'user' },
     TEST_SECRET,
     { expiresIn: '1h' }
 );
 
-// Token firmato con ruolo "admin"
+// Token signed with role "admin"
 const adminToken = jwt.sign(
     { userId: 2, email: 'admin@test.com', role: 'admin' },
     TEST_SECRET,
@@ -53,9 +53,9 @@ const adminToken = jwt.sign(
 );
 
 // ─────────────────────────────────────────────────────────
-// 1. Route protette — nessun token → 401
+// 1. Protected routes — no token → 401
 // ─────────────────────────────────────────────────────────
-describe('Route admin senza token → 401', () => {
+describe('Admin routes without token → 401', () => {
     const routes = [
         ['post',   '/api/products'],
         ['put',    '/api/products/1'],
@@ -76,9 +76,9 @@ describe('Route admin senza token → 401', () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// 2. Route admin con token utente normale → 403
+// 2. Admin routes with regular user token → 403
 // ─────────────────────────────────────────────────────────
-describe('Route admin con token user (non admin) → 403', () => {
+describe('Admin routes with user token (non-admin) → 403', () => {
     const routes = [
         ['post',   '/api/products'],
         ['put',    '/api/products/1'],
@@ -100,10 +100,10 @@ describe('Route admin con token user (non admin) → 403', () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// 3. Token malformato → 401
+// 3. Malformed token → 401
 // ─────────────────────────────────────────────────────────
-describe('Token non valido → 401', () => {
-    test('token scaduto', async () => {
+describe('Invalid token → 401', () => {
+    test('expired token', async () => {
         const expiredToken = jwt.sign(
             { userId: 1, email: 'user@test.com', role: 'admin' },
             TEST_SECRET,
@@ -115,10 +115,10 @@ describe('Token non valido → 401', () => {
         expect(res.status).toBe(401);
     });
 
-    test('token con firma errata', async () => {
+    test('token with wrong signature', async () => {
         const fakeToken = jwt.sign(
             { userId: 1, email: 'hacker@test.com', role: 'admin' },
-            'chiave-sbagliata',
+            'wrong-secret-key',
             { expiresIn: '1h' }
         );
         const res = await request(app)
@@ -127,7 +127,7 @@ describe('Token non valido → 401', () => {
         expect(res.status).toBe(401);
     });
 
-    test('header Authorization malformato', async () => {
+    test('malformed Authorization header', async () => {
         const res = await request(app)
             .post('/api/products')
             .set('Authorization', 'not-a-bearer-token');
@@ -136,35 +136,35 @@ describe('Token non valido → 401', () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// 4. Validazione input — auth routes
+// 4. Input validation — auth routes
 // ─────────────────────────────────────────────────────────
-describe('Auth — validazione input', () => {
-    test('login senza email e password → 400', async () => {
+describe('Auth — input validation', () => {
+    test('login without email and password → 400', async () => {
         const res = await request(app).post('/api/auth/login').send({});
         expect(res.status).toBe(400);
     });
 
-    test('login senza password → 400', async () => {
+    test('login without password → 400', async () => {
         const res = await request(app)
             .post('/api/auth/login')
             .send({ email: 'user@test.com' });
         expect(res.status).toBe(400);
     });
 
-    test('register senza campi → 400', async () => {
+    test('register without fields → 400', async () => {
         const res = await request(app).post('/api/auth/register').send({});
         expect(res.status).toBe(400);
     });
 
-    test('register con password troppo corta (< 6 chars) → 400', async () => {
+    test('register with password too short (< 6 chars) → 400', async () => {
         const res = await request(app)
             .post('/api/auth/register')
             .send({ email: 'test@test.com', password: '123' });
         expect(res.status).toBe(400);
     });
 
-    test('login con credenziali errate → 401', async () => {
-        // Il mock Prisma restituisce null → utente non trovato
+    test('login with wrong credentials → 401', async () => {
+        // Prisma mock returns null → user not found
         const res = await request(app)
             .post('/api/auth/login')
             .send({ email: 'nonexistent@test.com', password: 'wrongpassword' });
@@ -173,20 +173,20 @@ describe('Auth — validazione input', () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// 5. Route pubbliche — devono rimanere accessibili
+// 5. Public routes — must remain accessible
 // ─────────────────────────────────────────────────────────
-describe('Route pubbliche → accessibili senza token', () => {
-    test('GET /api/products → non 401', async () => {
+describe('Public routes → accessible without token', () => {
+    test('GET /api/products → not 401', async () => {
         const res = await request(app).get('/api/products');
         expect(res.status).not.toBe(401);
     });
 
-    test('GET /api/categories → non 401', async () => {
+    test('GET /api/categories → not 401', async () => {
         const res = await request(app).get('/api/categories');
         expect(res.status).not.toBe(401);
     });
 
-    test('GET /api/featured → non 401', async () => {
+    test('GET /api/featured → not 401', async () => {
         const res = await request(app).get('/api/featured');
         expect(res.status).not.toBe(401);
     });

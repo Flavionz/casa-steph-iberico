@@ -1,7 +1,7 @@
 /**
  * resetTestData.js
- * Cancella tutti gli ordini e ricrea 3 ordini di test puliti
- * con utenti che hanno tutti i campi obbligatori compilati.
+ * Deletes all orders and recreates 3 clean test orders
+ * with users that have all required fields populated.
  *
  * Usage: node server/scripts/resetTestData.js
  */
@@ -12,14 +12,14 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function resetTestData() {
-    console.log('🧹 Reset dati di test...\n');
+    console.log('🧹 Resetting test data...\n');
 
     try {
-        // 1. Cancella tutti gli ordini
+        // 1. Delete all orders
         const deleted = await prisma.order.deleteMany({});
-        console.log(`🗑️  ${deleted.count} ordini cancellati`);
+        console.log(`🗑️  ${deleted.count} orders deleted`);
 
-        // 2. Aggiorna l'admin con nome e cognome
+        // 2. Update admin user with name fields
         await prisma.user.updateMany({
             where: { role: 'admin' },
             data: {
@@ -28,9 +28,9 @@ async function resetTestData() {
                 phone: '+33 6 00 00 00 00',
             },
         });
-        console.log('✅ Utente admin aggiornato (Admin Auberge)');
+        console.log('✅ Admin user updated (Admin Auberge)');
 
-        // 3. Crea (o aggiorna) 2 utenti cliente di test
+        // 3. Create (or update) 2 test client users
         const passwordHash = await bcrypt.hash('Test1234!', 10);
 
         const marie = await prisma.user.upsert({
@@ -55,7 +55,7 @@ async function resetTestData() {
                 postalCode: '57000',
             },
         });
-        console.log(`✅ Utente test: ${marie.email} (ID: ${marie.id})`);
+        console.log(`✅ Test user: ${marie.email} (ID: ${marie.id})`);
 
         const thomas = await prisma.user.upsert({
             where: { email: 'thomas.martin@test.fr' },
@@ -79,9 +79,9 @@ async function resetTestData() {
                 postalCode: '57000',
             },
         });
-        console.log(`✅ Utente test: ${thomas.email} (ID: ${thomas.id})`);
+        console.log(`✅ Test user: ${thomas.email} (ID: ${thomas.id})`);
 
-        // 4. Crea 3 ordini di test in stati diversi
+        // 4. Create 3 test orders in different states
         const orders = [
             {
                 userId: marie.id,
@@ -135,20 +135,20 @@ async function resetTestData() {
             },
         ];
 
-        console.log('\n📦 Creazione ordini di test...');
+        console.log('\n📦 Creating test orders...');
         for (const data of orders) {
             const order = await prisma.order.create({ data });
-            console.log(`  ✅ Ordine #${order.id} — ${order.status} — ${order.total}€ — userId: ${order.userId}`);
+            console.log(`  ✅ Order #${order.id} — ${order.status} — ${order.total}€ — userId: ${order.userId}`);
         }
 
-        console.log('\n✨ Reset completato!');
+        console.log('\n✨ Reset complete!');
         console.log('─────────────────────────────────────');
-        console.log('Credenziali utenti di test:');
+        console.log('Test user credentials:');
         console.log('  marie.dupont@test.fr   / Test1234!');
         console.log('  thomas.martin@test.fr  / Test1234!');
         console.log('─────────────────────────────────────');
     } catch (error) {
-        console.error('❌ Errore:', error);
+        console.error('❌ Error:', error);
     } finally {
         await prisma.$disconnect();
     }

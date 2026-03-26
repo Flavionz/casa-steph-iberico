@@ -7,16 +7,14 @@ const prisma = new PrismaClient();
 
 const router = express.Router();
 
-// Inizializzazione lazy: evita il crash all'avvio se STRIPE_SECRET_KEY non è configurata
 const getStripe = () => {
     if (!process.env.STRIPE_SECRET_KEY) {
-        throw new Error('STRIPE_SECRET_KEY non configurata nel file .env');
+        throw new Error('STRIPE_SECRET_KEY is not configured');
     }
     return Stripe(process.env.STRIPE_SECRET_KEY);
 };
 
 // POST /api/payments/create-intent
-// Crea un PaymentIntent Stripe e restituisce il clientSecret al frontend
 router.post('/create-intent', authenticate, async (req, res) => {
     try {
         const stripe = getStripe();
@@ -27,7 +25,7 @@ router.post('/create-intent', authenticate, async (req, res) => {
         }
 
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: Math.round(parseFloat(amount) * 100), // Stripe usa i centesimi
+            amount: Math.round(parseFloat(amount) * 100),
             currency: 'eur',
             metadata: {
                 userId: req.user.userId.toString(),
@@ -42,13 +40,11 @@ router.post('/create-intent', authenticate, async (req, res) => {
 });
 
 // POST /api/payments/webhook
-// Gestisce gli eventi Stripe (configurare STRIPE_WEBHOOK_SECRET per produzione)
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
     const sig = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
     if (!endpointSecret) {
-        // Webhook non ancora configurato — OK in sviluppo
         return res.json({ received: true });
     }
 

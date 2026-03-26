@@ -96,7 +96,7 @@ async function seedOrders() {
         const user = await prisma.user.findFirst();
 
         if (!user) {
-            console.log('❌ Nessun utente trovato! Crea prima un utente.');
+            console.log('❌ No user found. Create a user first.');
             return;
         }
 
@@ -109,16 +109,16 @@ async function seedOrders() {
             const order = await prisma.order.create({
                 data: {
                     ...orderData,
-                    userId: user.id // Usa l'ID dell'utente reale
+                    userId: user.id
                 }
             });
             console.log(`✅ Ordine #${order.id} creato - ${order.status} - ${order.total}€`);
         }
 
-        console.log('✅ Seeding completato!');
-        console.log(`📊 ${mockOrders.length} ordini creati`);
+        console.log('✅ Seeding complete!');
+        console.log(`📊 ${mockOrders.length} orders created`);
     } catch (error) {
-        console.error('❌ Errore durante il seeding:', error);
+        console.error('❌ Seeding error:', error);
     } finally {
         await prisma.$disconnect();
     }
