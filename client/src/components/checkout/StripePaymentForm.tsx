@@ -90,13 +90,6 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
                 <span>Paiement sécurisé par Stripe — vos données ne transitent pas par nos serveurs.</span>
             </div>
 
-            {/* Test mode hint (retirer en production) */}
-            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3 text-xs text-blue-300 space-y-0.5">
-                <p className="font-semibold">Carte de test Stripe :</p>
-                <p>N° : <span className="font-mono">4242 4242 4242 4242</span></p>
-                <p>Expiration : <span className="font-mono">12/34</span> — CVC : <span className="font-mono">123</span></p>
-            </div>
-
             {/* Submit */}
             <button
                 type="submit"
