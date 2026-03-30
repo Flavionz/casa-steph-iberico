@@ -24,6 +24,7 @@ import { OrderConfirmationPage } from './pages/shop/OrderConfirmationPage';
 import { MentionsLegalesPage } from './pages/legal/MentionsLegalesPage';
 import { CGVPage } from './pages/legal/CGVPage';
 import { ConfidentialitePage } from './pages/legal/ConfidentialitePage';
+import { LivraisonPaiementPage } from './pages/legal/LivraisonPaiementPage';
 import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
 
@@ -85,6 +86,12 @@ export const AppRouter: React.FC = () => {
             <Route path="/privacy" element={
                 <FrontendLayout>
                     <ConfidentialitePage />
+                </FrontendLayout>
+            } />
+
+            <Route path="/livraison-paiement" element={
+                <FrontendLayout>
+                    <LivraisonPaiementPage />
                 </FrontendLayout>
             } />
 

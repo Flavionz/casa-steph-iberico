@@ -35,6 +35,11 @@ export const Footer = () => {
               </h4>
               <ul className="space-y-2">
                 <li>
+                  <Link to="/livraison-paiement" className="text-gray-400 text-sm hover:text-gold transition-colors">
+                    Livraison & Paiement
+                  </Link>
+                </li>
+                <li>
                   <Link to="/mentions" className="text-gray-400 text-sm hover:text-gold transition-colors">
                     Mentions Légales
                   </Link>

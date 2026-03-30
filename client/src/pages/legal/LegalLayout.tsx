@@ -46,12 +46,6 @@ export const LegalLayout: React.FC<LegalLayoutProps> = ({ title, lastUpdated, se
                     ))}
                 </div>
 
-                {/* Footer note */}
-                <div className="mt-16 pt-8 border-t border-gray-800 text-center">
-                    <p className="text-gray-600 text-xs">
-                        © {new Date().getFullYear()} L'Auberge Espagnole — Tous droits réservés
-                    </p>
-                </div>
             </div>
         </div>
     );
