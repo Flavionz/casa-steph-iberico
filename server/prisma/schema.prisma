@@ -43,6 +43,7 @@ model Order {
   paymentIntentId  String?
   deliveryTimeSlot String?
   deliveryDate     String?
+  invoiceNumber    String?  @unique
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }

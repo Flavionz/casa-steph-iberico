@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const { sendOrderConfirmationEmail } = require('../services/emailService');
+const { generateInvoicePDF, generateInvoiceNumber } = require('../services/invoiceService');
 
 const prisma = new PrismaClient();
 
@@ -78,6 +79,12 @@ const createOrder = async (req, res) => {
                 paymentStatus: paymentIntentId ? 'paid' : 'pending',
                 ...(paymentIntentId && { paymentIntentId }),
             }
+        });
+
+        const invoiceNumber = generateInvoiceNumber(order.id);
+        await prisma.order.update({
+            where: { id: order.id },
+            data: { invoiceNumber }
         });
 
         const user = await prisma.user.findUnique({
@@ -165,9 +172,38 @@ const updateOrderStatus = async (req, res) => {
     }
 };
 
+const downloadInvoice = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const order = await prisma.order.findUnique({
+            where: { id: parseInt(id) }
+        });
+
+        if (!order) {
+            return res.status(404).json({ error: 'Commande introuvable' });
+        }
+
+        // Un client ne peut télécharger que ses propres factures (sauf admin)
+        if (order.userId !== req.user.userId && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Accès non autorisé' });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { id: order.userId },
+            select: { email: true, firstName: true, lastName: true, address: true, city: true, postalCode: true }
+        });
+
+        generateInvoicePDF(order, user, res);
+    } catch (error) {
+        console.error('Invoice download error:', error);
+        res.status(500).json({ error: 'Erreur lors de la génération de la facture' });
+    }
+};
+
 module.exports = {
     createOrder,
     getUserOrders,
     getAllOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    downloadInvoice
 };

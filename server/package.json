@@ -29,6 +29,7 @@
     "multer": "^2.0.2",
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^8.0.1",
+    "pdfkit": "^0.18.0",
     "stripe": "^20.4.1"
   },
   "devDependencies": {

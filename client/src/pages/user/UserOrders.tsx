@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { UserLayout } from '../../components/user/UserLayout';
-import { Package, Clock, CheckCircle, XCircle, ShoppingBag, Truck } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, ShoppingBag, Truck, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../config/api';
@@ -14,6 +14,7 @@ interface Order {
     postalCode: string;
     deliveryTimeSlot: string | null;
     deliveryDate: string | null;
+    invoiceNumber: string | null;
     createdAt: string;
 }
 
@@ -214,6 +215,37 @@ export const UserOrders = () => {
                                         <p className="text-2xl font-bold text-gold">{order.total.toFixed(2)} €</p>
                                     </div>
                                 </div>
+
+                                {order.invoiceNumber && (
+                                    <div className="border-t border-gray-700 pt-4 mt-4 flex items-center justify-between">
+                                        <p className="text-xs text-gray-500">Facture {order.invoiceNumber}</p>
+                                        <a
+                                            href={`${API_URL}/orders/${order.id}/invoice`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                const token = localStorage.getItem('authToken');
+                                                fetch(`${API_URL}/orders/${order.id}/invoice`, {
+                                                    headers: { Authorization: `Bearer ${token}` }
+                                                })
+                                                .then(res => res.blob())
+                                                .then(blob => {
+                                                    const url = URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = `facture-${order.invoiceNumber}.pdf`;
+                                                    a.click();
+                                                    URL.revokeObjectURL(url);
+                                                });
+                                            }}
+                                            className="inline-flex items-center gap-2 text-xs text-gold hover:text-gold/80 border border-gold/30 hover:border-gold/60 px-3 py-1.5 rounded transition-colors"
+                                        >
+                                            <Download size={13} />
+                                            Télécharger la facture
+                                        </a>
+                                    </div>
+                                )}
                             </div>
                         );
                     })}
