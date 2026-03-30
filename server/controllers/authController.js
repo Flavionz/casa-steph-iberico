@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken');
 const { sendPasswordResetEmail, sendWelcomeEmail } = require('../services/emailService');
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error('FATAL: JWT_SECRET environment variable is not set.');
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 const register = async (req, res) => {
@@ -20,8 +21,8 @@ const register = async (req, res) => {
             return res.status(400).json({ error: 'Email et mot de passe requis' });
         }
 
-        if (password.length < 6) {
-            return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 6 caractères' });
+        if (password.length < 8) {
+            return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 8 caractères' });
         }
 
         const existingUser = await prisma.user.findUnique({
@@ -172,6 +173,11 @@ const forgotPassword = async (req, res) => {
             { expiresIn: '1h' }
         );
 
+        await prisma.user.update({
+            where: { id: user.id },
+            data: { resetToken, resetTokenUsed: false }
+        });
+
         const resetLink = `${CLIENT_URL}/reset-password?token=${resetToken}`;
         await sendPasswordResetEmail(user, resetLink);
 
@@ -189,8 +195,8 @@ const resetPassword = async (req, res) => {
             return res.status(400).json({ error: 'Token et nouveau mot de passe requis' });
         }
 
-        if (newPassword.length < 6) {
-            return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 6 caractères' });
+        if (newPassword.length < 8) {
+            return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 8 caractères' });
         }
 
         let decoded;
@@ -204,10 +210,18 @@ const resetPassword = async (req, res) => {
             return res.status(400).json({ error: 'Token invalide' });
         }
 
+        const user = await prisma.user.findFirst({
+            where: { id: decoded.userId, resetToken: token, resetTokenUsed: false }
+        });
+
+        if (!user) {
+            return res.status(400).json({ error: 'Lien invalide ou déjà utilisé' });
+        }
+
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         await prisma.user.update({
             where: { id: decoded.userId },
-            data: { password: hashedPassword },
+            data: { password: hashedPassword, resetToken: null, resetTokenUsed: true },
         });
 
         res.json({ message: 'Mot de passe réinitialisé avec succès' });

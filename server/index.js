@@ -435,7 +435,7 @@ app.get('/api/orders/admin/all', authenticate, isAdmin, async (req, res) => {
     }
 });
 
-app.get('/api/orders/:id', async (req, res) => {
+app.get('/api/orders/:id', authenticate, isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
 

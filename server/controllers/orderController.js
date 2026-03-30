@@ -34,7 +34,26 @@ const createOrder = async (req, res) => {
             return res.status(400).json({ error: 'Informations de livraison manquantes' });
         }
 
-        const cartTotal = parseFloat(total);
+        // Recalcul server-side du total (sécurité: ne pas faire confiance au client)
+        const parsedItems = typeof items === 'string' ? JSON.parse(items) : items;
+        const productIds = parsedItems.map(item => item.id).filter(Boolean);
+        const dbProducts = productIds.length > 0
+            ? await prisma.product.findMany({ where: { id: { in: productIds } } })
+            : [];
+
+        let cartTotal;
+        if (dbProducts.length > 0) {
+            cartTotal = parsedItems.reduce((sum, item) => {
+                const product = dbProducts.find(p => p.id === item.id);
+                if (!product) throw new Error(`Produit introuvable: ${item.id}`);
+                return sum + product.price * item.quantity;
+            }, 0);
+        } else {
+            // Fallback si les items n'ont pas d'id (compatibilité)
+            cartTotal = parseFloat(total);
+        }
+
+        cartTotal = Math.round(cartTotal * 100) / 100;
 
         // Panier minimum
         if (cartTotal < MIN_CART) {

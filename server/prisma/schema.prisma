@@ -21,9 +21,11 @@ model User {
   phone      String?
   address    String?
   city       String?
-  postalCode String?
-  createdAt  DateTime @default(now())
-  orders     Order[]
+  postalCode     String?
+  resetToken     String?  @unique
+  resetTokenUsed Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  orders         Order[]
 }
 
 model Order {
