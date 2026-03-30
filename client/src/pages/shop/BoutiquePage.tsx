@@ -98,26 +98,22 @@ export const BoutiquePage = () => {
     ...categories.map(c => ({ id: c.id, name: c.name, label: c.name }))
   ];
 
-  const getStockBadge = (stock: number) => {
-    if (stock === 0) {
+  const getStockIndicator = (stock: number) => {
+    if (stock === 0) return null;
+    if (stock <= 3) {
       return (
-          <span className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded">
-          Rupture de stock
-        </span>
-      );
-    } else if (stock <= 3) {
-      return (
-          <span className="px-2 py-1 bg-orange-500 text-white text-xs font-bold rounded">
+        <p className="flex items-center gap-1.5 text-orange-400 text-xs font-medium mt-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block shrink-0" />
           Plus que {stock} disponible{stock > 1 ? 's' : ''}
-        </span>
-      );
-    } else {
-      return (
-          <span className="px-2 py-1 bg-green-600 text-white text-xs font-bold rounded">
-          {stock} en stock
-        </span>
+        </p>
       );
     }
+    return (
+      <p className="flex items-center gap-1.5 text-green-500 text-xs font-medium mt-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block shrink-0" />
+        Disponible
+      </p>
+    );
   };
 
   return (
@@ -180,13 +176,11 @@ export const BoutiquePage = () => {
             </div>
 
             {/* Stock Info */}
-            <div className="mb-8 bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
-              <div className="flex items-center space-x-3">
-                <Info className="text-amber-400" size={20} />
-                <p className="text-sm text-amber-200">
-                  <strong>Stock limité :</strong> Nos produits sont préparés artisanalement. Les quantités disponibles sont mises à jour en temps réel.
-                </p>
-              </div>
+            <div className="mb-8 bg-[#2C2C2C] border border-gray-700 rounded-lg p-4 flex items-start gap-3">
+              <Info className="text-[#Cca43b] shrink-0 mt-0.5" size={16} />
+              <p className="text-sm text-gray-300 leading-relaxed">
+                <strong className="text-white">Stocks limités :</strong> nos produits sont préparés artisanalement en petites quantités. Les disponibilités sont mises à jour en temps réel sur chaque article.
+              </p>
             </div>
 
             {isLoading ? (
@@ -243,15 +237,6 @@ export const BoutiquePage = () => {
                                   }`}
                               >
                                 <div className="h-48 overflow-hidden relative">
-                                  <div className="absolute top-2 left-2 bg-[#Cca43b] text-[#1E1B18] text-xs font-bold px-2 py-0.5 rounded z-10 uppercase">
-                                    {product.category?.name || 'Gourmet'}
-                                  </div>
-
-                                  {/* Stock Badge */}
-                                  <div className="absolute top-2 right-2 z-10">
-                                    {getStockBadge(product.stock)}
-                                  </div>
-
                                   <img
                                       src={product.image || "https://placehold.co/400x300/1E1B18/Cca43b?text=Image+Manquante"}
                                       alt={product.name}
@@ -273,6 +258,7 @@ export const BoutiquePage = () => {
                                     <span className="text-xl font-serif text-[#Cca43b] font-bold">
                               {product.price.toFixed(2)} €
                             </span>
+                                    {getStockIndicator(product.stock)}
                                   </div>
 
                                   <button
