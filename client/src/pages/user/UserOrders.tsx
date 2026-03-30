@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { UserLayout } from '../../components/user/UserLayout';
-import { Package, Clock, CheckCircle, XCircle, ShoppingBag, Truck, Download } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, ShoppingBag, Truck, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../config/api';
@@ -9,25 +9,10 @@ interface Order {
     id: number;
     status: string;
     total: number;
-    items: string;
-    deliveryAddress: string;
-    postalCode: string;
-    deliveryTimeSlot: string | null;
-    deliveryDate: string | null;
     invoiceNumber: string | null;
+    paymentStatus: string | null;
     createdAt: string;
 }
-
-const parseItems = (raw: string | null | undefined): { name: string; quantity: number; price: number }[] => {
-    if (!raw) return [];
-    try {
-        let parsed = JSON.parse(raw);
-        if (typeof parsed === 'string') parsed = JSON.parse(parsed);
-        return Array.isArray(parsed) ? parsed : [];
-    } catch {
-        return [];
-    }
-};
 
 export const UserOrders = () => {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -54,53 +39,17 @@ export const UserOrders = () => {
     const getStatusBadge = (status: string) => {
         switch (status) {
             case 'en_attente':
-                return {
-                    bg: 'bg-yellow-900/20',
-                    border: 'border-yellow-500',
-                    text: 'text-yellow-300',
-                    label: 'En attente',
-                    icon: Clock
-                };
+                return { bg: 'bg-yellow-900/20', border: 'border-yellow-500', text: 'text-yellow-300', label: 'En attente', icon: Clock };
             case 'en_preparation':
-                return {
-                    bg: 'bg-blue-900/20',
-                    border: 'border-blue-500',
-                    text: 'text-blue-300',
-                    label: 'En préparation',
-                    icon: Package
-                };
+                return { bg: 'bg-blue-900/20', border: 'border-blue-500', text: 'text-blue-300', label: 'En préparation', icon: Package };
             case 'pret_pour_livraison':
-                return {
-                    bg: 'bg-green-900/20',
-                    border: 'border-green-500',
-                    text: 'text-green-300',
-                    label: 'Prêt pour livraison',
-                    icon: Truck
-                };
+                return { bg: 'bg-green-900/20', border: 'border-green-500', text: 'text-green-300', label: 'Prêt pour livraison', icon: Truck };
             case 'livre':
-                return {
-                    bg: 'bg-gray-900/20',
-                    border: 'border-gray-500',
-                    text: 'text-gray-300',
-                    label: 'Livré',
-                    icon: CheckCircle
-                };
+                return { bg: 'bg-gray-900/20', border: 'border-gray-500', text: 'text-gray-300', label: 'Livré', icon: CheckCircle };
             case 'annule':
-                return {
-                    bg: 'bg-red-900/20',
-                    border: 'border-red-500',
-                    text: 'text-red-300',
-                    label: 'Annulé',
-                    icon: XCircle
-                };
+                return { bg: 'bg-red-900/20', border: 'border-red-500', text: 'text-red-300', label: 'Annulé', icon: XCircle };
             default:
-                return {
-                    bg: 'bg-gray-900/20',
-                    border: 'border-gray-500',
-                    text: 'text-gray-300',
-                    label: status,
-                    icon: Package
-                };
+                return { bg: 'bg-gray-900/20', border: 'border-gray-500', text: 'text-gray-300', label: status, icon: Package };
         }
     };
 
@@ -141,112 +90,69 @@ export const UserOrders = () => {
                     <h2 className="text-2xl font-serif text-white">Mes Commandes</h2>
                 </div>
 
-                <div className="space-y-4">
+                {/* Header */}
+                <div className="hidden md:grid grid-cols-12 gap-4 px-4 text-xs text-gray-500 uppercase tracking-wider">
+                    <div className="col-span-3">Référence</div>
+                    <div className="col-span-3">Date</div>
+                    <div className="col-span-2 text-right">Montant</div>
+                    <div className="col-span-3">Statut</div>
+                    <div className="col-span-1"></div>
+                </div>
+
+                {/* Rows */}
+                <div className="space-y-2">
                     {orders.map((order) => {
                         const statusBadge = getStatusBadge(order.status);
                         const StatusIcon = statusBadge.icon;
-                        const items = parseItems(order.items);
 
                         return (
-                            <div
+                            <Link
                                 key={order.id}
-                                className="bg-gray-800/50 rounded-lg p-6 border border-gray-700 hover:border-gold/30 transition-all"
+                                to={`/account/orders/${order.id}`}
+                                className="grid grid-cols-2 md:grid-cols-12 gap-4 items-center px-4 py-4 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-gold/40 hover:bg-gray-800 transition-all group"
                             >
-                                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                                    <div>
-                                        <p className="text-sm text-gray-400">Commande #{order.id}</p>
-                                        <p className="text-white font-semibold">
-                                            {new Date(order.createdAt).toLocaleDateString('fr-FR', {
-                                                day: 'numeric',
-                                                month: 'long',
-                                                year: 'numeric'
-                                            })}
-                                        </p>
-                                    </div>
-                                    <div className={`mt-2 md:mt-0 inline-flex items-center space-x-2 px-3 py-1 rounded-full border ${statusBadge.bg} ${statusBadge.border}`}>
-                                        <StatusIcon size={16} className={statusBadge.text} />
-                                        <span className={`text-sm font-medium ${statusBadge.text}`}>
-                                            {statusBadge.label}
-                                        </span>
-                                    </div>
+                                {/* REF */}
+                                <div className="col-span-1 md:col-span-3">
+                                    <p className="text-xs text-gray-500 md:hidden">Référence</p>
+                                    <p className="text-white font-mono text-sm font-medium">
+                                        #{String(order.id).padStart(4, '0')}
+                                    </p>
+                                    {order.invoiceNumber && (
+                                        <p className="text-xs text-gray-500">{order.invoiceNumber}</p>
+                                    )}
                                 </div>
 
-                                {/* Info Livraison (se disponibile) */}
-                                {order.deliveryDate && order.deliveryTimeSlot && (
-                                    <div className="bg-green-900/20 border border-green-500 rounded-lg p-4 mb-4">
-                                        <div className="flex items-center space-x-2 mb-2">
-                                            <Truck size={18} className="text-green-400" />
-                                            <p className="text-green-300 font-semibold text-sm">
-                                                Livraison programmée
-                                            </p>
-                                        </div>
-                                        <p className="text-green-200 text-sm">
-                                            📅 {new Date(order.deliveryDate).toLocaleDateString('fr-FR', {
+                                {/* Date */}
+                                <div className="col-span-1 md:col-span-3">
+                                    <p className="text-xs text-gray-500 md:hidden">Date</p>
+                                    <p className="text-gray-300 text-sm">
+                                        {new Date(order.createdAt).toLocaleDateString('fr-FR', {
                                             day: 'numeric',
-                                            month: 'long',
+                                            month: 'short',
                                             year: 'numeric'
                                         })}
-                                        </p>
-                                        <p className="text-green-200 text-sm">
-                                            🕐 {order.deliveryTimeSlot}
-                                        </p>
-                                    </div>
-                                )}
+                                    </p>
+                                </div>
 
-                                <div className="border-t border-gray-700 pt-4 mt-4">
-                                    <p className="text-sm text-gray-400 mb-2">Articles ({items.length})</p>
-                                    <div className="space-y-2">
-                                        {items.map((item: any, index: number) => (
-                                            <div key={index} className="flex justify-between text-sm">
-                                                <span className="text-gray-300">{item.quantity}x {item.name}</span>
-                                                <span className="text-gold">{(item.price * item.quantity).toFixed(2)} €</span>
-                                            </div>
-                                        ))}
+                                {/* Montant */}
+                                <div className="col-span-1 md:col-span-2 md:text-right">
+                                    <p className="text-xs text-gray-500 md:hidden">Montant</p>
+                                    <p className="text-gold font-bold">{order.total.toFixed(2)} €</p>
+                                </div>
+
+                                {/* Statut */}
+                                <div className="col-span-1 md:col-span-3">
+                                    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium ${statusBadge.bg} ${statusBadge.border} ${statusBadge.text}`}>
+                                        <StatusIcon size={12} />
+                                        {statusBadge.label}
                                     </div>
                                 </div>
 
-                                <div className="border-t border-gray-700 pt-4 mt-4 flex justify-between items-center">
-                                    <div className="text-sm text-gray-400">
-                                        <p>Livraison: {order.deliveryAddress}</p>
-                                        <p>Code postal: {order.postalCode}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-sm text-gray-400">Total</p>
-                                        <p className="text-2xl font-bold text-gold">{order.total.toFixed(2)} €</p>
-                                    </div>
+                                {/* Arrow */}
+                                <div className="hidden md:flex col-span-1 justify-end">
+                                    <ChevronRight size={18} className="text-gray-600 group-hover:text-gold transition-colors" />
                                 </div>
-
-                                {order.invoiceNumber && (
-                                    <div className="border-t border-gray-700 pt-4 mt-4 flex items-center justify-between">
-                                        <p className="text-xs text-gray-500">Facture {order.invoiceNumber}</p>
-                                        <a
-                                            href={`${API_URL}/orders/${order.id}/invoice`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                const token = localStorage.getItem('authToken');
-                                                fetch(`${API_URL}/orders/${order.id}/invoice`, {
-                                                    headers: { Authorization: `Bearer ${token}` }
-                                                })
-                                                .then(res => res.blob())
-                                                .then(blob => {
-                                                    const url = URL.createObjectURL(blob);
-                                                    const a = document.createElement('a');
-                                                    a.href = url;
-                                                    a.download = `facture-${order.invoiceNumber}.pdf`;
-                                                    a.click();
-                                                    URL.revokeObjectURL(url);
-                                                });
-                                            }}
-                                            className="inline-flex items-center gap-2 text-xs text-gold hover:text-gold/80 border border-gold/30 hover:border-gold/60 px-3 py-1.5 rounded transition-colors"
-                                        >
-                                            <Download size={13} />
-                                            Télécharger la facture
-                                        </a>
-                                    </div>
-                                )}
-                            </div>
+                            </Link>
                         );
                     })}
                 </div>

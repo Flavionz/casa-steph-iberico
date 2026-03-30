@@ -4,7 +4,8 @@ const {
     getUserProfile,
     updateUserProfile,
     updatePassword,
-    getUserOrders
+    getUserOrders,
+    getUserOrderById
 } = require('../controllers/userController');
 
 const router = express.Router();
@@ -13,5 +14,6 @@ router.get('/profile', authenticate, getUserProfile);
 router.put('/profile', authenticate, updateUserProfile);
 router.put('/password', authenticate, updatePassword);
 router.get('/orders', authenticate, getUserOrders);
+router.get('/orders/:id', authenticate, getUserOrderById);
 
 module.exports = router;

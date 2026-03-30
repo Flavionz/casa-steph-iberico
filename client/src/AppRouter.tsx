@@ -15,6 +15,7 @@ import { ManageOrdersPage } from './pages/admin/ManageOrdersPage';
 import { UserDashboard } from './pages/user/UserDashboard';
 import { UserProfile } from './pages/user/UserProfile';
 import { UserOrders } from './pages/user/UserOrders';
+import { OrderDetailPage } from './pages/user/OrderDetailPage';
 import { UserSettings } from './pages/user/UserSettings';
 import { UserAddress } from './pages/user/UserAddress';
 import { CheckoutPage } from './pages/shop/CheckoutPage';
@@ -98,6 +99,7 @@ export const AppRouter: React.FC = () => {
             <Route path="/account" element={<UserDashboard />} />
             <Route path="/account/profile" element={<UserProfile />} />
             <Route path="/account/orders" element={<UserOrders />} />
+            <Route path="/account/orders/:id" element={<OrderDetailPage />} />
             <Route path="/account/settings" element={<UserSettings />} />
             <Route path="/account/address" element={<UserAddress />} />
 

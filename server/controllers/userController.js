@@ -101,6 +101,24 @@ const updatePassword = async (req, res) => {
     }
 };
 
+const getUserOrderById = async (req, res) => {
+    try {
+        const orderId = parseInt(req.params.id);
+        if (isNaN(orderId)) return res.status(400).json({ error: 'ID invalide' });
+
+        const order = await prisma.order.findFirst({
+            where: { id: orderId, userId: req.user.userId }
+        });
+
+        if (!order) return res.status(404).json({ error: 'Commande introuvable' });
+
+        res.json(order);
+    } catch (error) {
+        console.error('Get order by id error:', error);
+        res.status(500).json({ error: 'Erreur lors de la récupération de la commande' });
+    }
+};
+
 const getUserOrders = async (req, res) => {
     try {
         const orders = await prisma.order.findMany({
@@ -119,5 +137,6 @@ module.exports = {
     getUserProfile,
     updateUserProfile,
     updatePassword,
-    getUserOrders
+    getUserOrders,
+    getUserOrderById
 };
