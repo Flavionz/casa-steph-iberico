@@ -20,7 +20,7 @@ export const AboutPage = () => {
                         </h1>
                         <div className="w-32 h-0.5 bg-gold mx-auto"></div>
                         <p className="text-xl text-gray-300 mt-6 max-w-2xl mx-auto">
-                            Une passion pour l'excellence gastronomique espagnole
+                            Une passion pour l'excellence gastronomique ibérique
                         </p>
                     </div>
                 </div>
@@ -50,7 +50,7 @@ export const AboutPage = () => {
                             de Metz.
                         </p>
                         <p className="text-lg text-gray-300 leading-relaxed">
-                            L'Auberge Espagnole n'est pas simplement un commerce, c'est l'aboutissement d'un rêve :
+                            Casa Steph Iberico n'est pas simplement un commerce, c'est l'aboutissement d'un rêve :
                             rendre accessible à tous les amateurs de gastronomie les véritables saveurs de l'Espagne,
                             ces produits d'exception que l'on ne trouve nulle part ailleurs dans la région.
                         </p>

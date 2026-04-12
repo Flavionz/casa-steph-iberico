@@ -17,7 +17,7 @@ const sendOrderReadyEmail = async (order, user) => {
     ).join('\n');
 
     const mailOptions = {
-        from: process.env.SMTP_FROM || '"L\'Auberge Espagnole" <contact@auberge-espagnol.fr>',
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
         to: user.email,
         subject: `Votre commande #${order.id} est prête! 🎉`,
         html: `
@@ -43,7 +43,7 @@ ${itemsList}
           Total: ${order.total.toFixed(2)}€
         </p>
         
-        <p style="margin-top: 30px;">À très bientôt,<br><strong>L'Auberge Espagnole</strong></p>
+        <p style="margin-top: 30px;">À très bientôt,<br><strong>Casa Steph Iberico</strong></p>
         
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
         
@@ -66,7 +66,7 @@ ${itemsList}
 
 const sendOrderDeliveredEmail = async (order, user) => {
     const mailOptions = {
-        from: process.env.SMTP_FROM || '"L\'Auberge Espagnole" <contact@auberge-espagnol.fr>',
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
         to: user.email,
         subject: `Commande #${order.id} livrée - Merci! 🎉`,
         html: `
@@ -79,7 +79,7 @@ const sendOrderDeliveredEmail = async (order, user) => {
         
         <p>Nous espérons que vous apprécierez nos produits!</p>
         
-        <p style="margin-top: 30px;">À très bientôt,<br><strong>L'Auberge Espagnole</strong></p>
+        <p style="margin-top: 30px;">À très bientôt,<br><strong>Casa Steph Iberico</strong></p>
         
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
         
@@ -102,7 +102,7 @@ const sendOrderDeliveredEmail = async (order, user) => {
 
 const sendPasswordResetEmail = async (user, resetLink) => {
     const mailOptions = {
-        from: process.env.SMTP_FROM || '"L\'Auberge Espagnole" <contact@auberge-espagnol.fr>',
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
         to: user.email,
         subject: 'Réinitialisation de votre mot de passe',
         html: `
@@ -119,7 +119,7 @@ const sendPasswordResetEmail = async (user, resetLink) => {
         </div>
         <p style="color: #888; font-size: 13px;">Si vous n'avez pas fait cette demande, ignorez cet email. Votre mot de passe ne sera pas modifié.</p>
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-        <p style="font-size: 12px; color: #666;">L'Auberge Espagnole — lauberge.espagnole.metz@gmail.com</p>
+        <p style="font-size: 12px; color: #666;">Casa Steph Iberico — lauberge.espagnole.metz@gmail.com</p>
       </div>
     `,
     };
@@ -148,14 +148,14 @@ const sendOrderConfirmationEmail = async (order, user) => {
     const paymentLabel = order.paymentMethod === 'cash' ? 'Paiement à la livraison' : 'Carte bancaire (Stripe)';
 
     const mailOptions = {
-        from: process.env.SMTP_FROM || '"L\'Auberge Espagnole" <contact@auberge-espagnol.fr>',
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
         to: user.email,
         subject: `Confirmation de commande ${orderNumber}`,
         html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background-color: #1a1714; padding: 30px; text-align: center;">
-          <h1 style="color: #C9A66B; margin: 0; font-size: 24px;">L'Auberge Espagnole</h1>
-          <p style="color: #888; margin: 5px 0 0 0; font-size: 13px;">Épicerie fine · Metz</p>
+          <h1 style="color: #C9A66B; margin: 0; font-size: 24px;">Casa Steph Iberico</h1>
+          <p style="color: #888; margin: 5px 0 0 0; font-size: 13px;">Charcuterie & fromages ibériques · Metz</p>
         </div>
 
         <div style="padding: 40px 30px;">
@@ -205,7 +205,7 @@ const sendOrderConfirmationEmail = async (order, user) => {
 
         <div style="background-color: #f5f5f5; padding: 20px 30px; text-align: center;">
           <p style="margin: 0; font-size: 12px; color: #999;">
-            L'Auberge Espagnole — Metz, France<br>
+            Casa Steph Iberico — Metz, France<br>
             <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}" style="color: #C9A66B; text-decoration: none;">auberge-ecommerce.vercel.app</a>
           </p>
         </div>
@@ -225,14 +225,14 @@ const sendOrderConfirmationEmail = async (order, user) => {
 
 const sendWelcomeEmail = async (user) => {
     const mailOptions = {
-        from: process.env.SMTP_FROM || '"L\'Auberge Espagnole" <contact@auberge-espagnol.fr>',
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
         to: user.email,
-        subject: 'Bienvenue chez L\'Auberge Espagnole !',
+        subject: 'Bienvenue chez Casa Steph Iberico !',
         html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background-color: #1a1714; padding: 30px; text-align: center;">
-          <h1 style="color: #C9A66B; margin: 0; font-size: 24px;">L'Auberge Espagnole</h1>
-          <p style="color: #888; margin: 5px 0 0 0; font-size: 13px;">Épicerie fine · Metz</p>
+          <h1 style="color: #C9A66B; margin: 0; font-size: 24px;">Casa Steph Iberico</h1>
+          <p style="color: #888; margin: 5px 0 0 0; font-size: 13px;">Charcuterie & fromages ibériques · Metz</p>
         </div>
 
         <div style="padding: 40px 30px;">
@@ -259,7 +259,7 @@ const sendWelcomeEmail = async (user) => {
 
         <div style="background-color: #f5f5f5; padding: 20px 30px; text-align: center;">
           <p style="margin: 0; font-size: 12px; color: #999;">
-            L'Auberge Espagnole — Metz, France<br>
+            Casa Steph Iberico — Metz, France<br>
             <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}" style="color: #C9A66B; text-decoration: none;">auberge-ecommerce.vercel.app</a>
           </p>
         </div>

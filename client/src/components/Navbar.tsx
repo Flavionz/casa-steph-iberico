@@ -34,11 +34,11 @@ export const Navbar = () => {
           <Link to="/" className="flex items-center space-x-3">
             <img
                 src="/logo.png"
-                alt="L'Auberge Espagnole Logo"
+                alt="Casa Steph Iberico Logo"
                 className="h-10 w-auto"
             />
             <span className="font-serif text-xl md:text-2xl text-white">
-            L'Auberge Espagnole
+            Casa Steph Iberico
           </span>
           </Link>
 

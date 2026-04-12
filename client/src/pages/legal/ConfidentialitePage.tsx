@@ -17,7 +17,7 @@ export const ConfidentialitePage = () => {
                         <strong> auberge-espagnol.fr</strong> est :
                     </p>
                     <ul className="mt-2 space-y-1 list-none">
-                        <li><span className="text-gray-400">Identité :</span> MILHAU Stéphane — L'Auberge Espagnole</li>
+                        <li><span className="text-gray-400">Identité :</span> MILHAU Stéphane — Casa Steph Iberico</li>
                         <li><span className="text-gray-400">Adresse :</span> 33 Rue des Chenevières, 57140 La Maxe</li>
                         <li><span className="text-gray-400">Email :</span> lauberge.espagnole.metz@gmail.com</li>
                         <li><span className="text-gray-400">Téléphone :</span> +33 6 89 66 91 15</li>

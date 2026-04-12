@@ -42,7 +42,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) =
             <div className="p-6 border-b border-gray-800 flex items-center justify-between">
                 <Link to="/" className="block group" onClick={onClose}>
                     <h2 className="font-serif text-xl text-white group-hover:text-gold transition-colors">
-                        L'Auberge Espagnole
+                        Casa Steph Iberico
                     </h2>
                     <p className="text-xs text-gray-500 mt-1 uppercase tracking-wider">
                         Administration

@@ -14,7 +14,7 @@ export const MentionsLegalesPage = () => {
                 <>
                     <p>Le site <strong>auberge-espagnol.fr</strong> est édité par :</p>
                     <ul className="mt-2 space-y-1 list-none">
-                        <li><span className="text-gray-400">Nom commercial :</span> L'Auberge Espagnole</li>
+                        <li><span className="text-gray-400">Nom commercial :</span> Casa Steph Iberico</li>
                         <li><span className="text-gray-400">Titulaire :</span> MILHAU Stéphane, Maurice, Robert</li>
                         <li><span className="text-gray-400">Forme juridique :</span> Micro-entreprise (entreprise individuelle)</li>
                         <li><span className="text-gray-400">Siège social :</span> 33 Rue des Chenevières, 57140 La Maxe</li>
@@ -46,7 +46,7 @@ export const MentionsLegalesPage = () => {
             content: (
                 <p>
                     L'ensemble des contenus présents sur ce site (textes, images, logos, vidéos) sont la propriété
-                    exclusive de L'Auberge Espagnole, sauf mention contraire. Toute reproduction, distribution ou
+                    exclusive de Casa Steph Iberico, sauf mention contraire. Toute reproduction, distribution ou
                     utilisation sans autorisation écrite préalable est strictement interdite et constitue une
                     contrefaçon au sens des articles L.335-2 et suivants du Code de la propriété intellectuelle.
                 </p>
@@ -56,7 +56,7 @@ export const MentionsLegalesPage = () => {
             title: 'Limitation de responsabilité',
             content: (
                 <p>
-                    L'Auberge Espagnole s'efforce de maintenir les informations publiées sur ce site à jour et exactes.
+                    Casa Steph Iberico s'efforce de maintenir les informations publiées sur ce site à jour et exactes.
                     Cependant, elle ne peut garantir l'exactitude, la complétude ou l'actualité des informations
                     diffusées. L'utilisation des informations et contenus du site est effectuée sous la responsabilité
                     exclusive de l'utilisateur.

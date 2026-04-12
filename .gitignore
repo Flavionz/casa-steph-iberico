@@ -48,6 +48,9 @@ pnpm-lock.yaml
 .idea/
 .vscode/
 .claude/
+
+# Local dev instructions
+CLAUDE.md
 *.iml
 *.swp
 *.swo

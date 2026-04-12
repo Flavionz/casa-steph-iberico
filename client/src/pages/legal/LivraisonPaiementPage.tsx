@@ -86,7 +86,7 @@ export const LivraisonPaiementPage = () => {
                         </li>
                         <li>
                             Vos données bancaires ne transitent <strong>jamais</strong> par les serveurs
-                            de L'Auberge Espagnole, elles sont traitées directement et exclusivement par Stripe
+                            de Casa Steph Iberico, elles sont traitées directement et exclusivement par Stripe
                         </li>
                         <li>Connexion sécurisée HTTPS et chiffrement SSL</li>
                         <li>Le débit est effectué au moment de la validation de la commande</li>

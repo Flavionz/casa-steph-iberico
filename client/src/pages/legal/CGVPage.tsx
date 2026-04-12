@@ -8,7 +8,7 @@ export const CGVPage = () => {
             content: (
                 <p>
                     Les présentes Conditions Générales de Vente (CGV) régissent les ventes de produits effectuées
-                    sur le site <strong>auberge-espagnol.fr</strong> par <strong>L'Auberge Espagnole</strong>,
+                    sur le site <strong>auberge-espagnol.fr</strong> par <strong>Casa Steph Iberico</strong>,
                     micro-entreprise individuelle exploitée par MILHAU Stéphane, dont le siège social est situé
                     33 Rue des Chenevières, 57140 La Maxe (SIREN : 519 942 924), ci-après dénommé « le Vendeur »,
                     auprès de tout client particulier, ci-après dénommé « le Client ».
@@ -22,7 +22,7 @@ export const CGVPage = () => {
                 <>
                     <p>
                         Les produits proposés à la vente sont ceux présentés sur le site au moment de la consultation
-                        par le Client. Il s'agit de produits d'épicerie fine espagnole : charcuteries, fromages et
+                        par le Client. Il s'agit de produits ibériques premium : charcuteries, fromages et
                         conserves. Les photographies et descriptions sont données à titre indicatif et ne sont
                         pas contractuelles.
                     </p>
@@ -103,7 +103,7 @@ export const CGVPage = () => {
                     </ul>
                     <p className="mt-3">
                         Les paiements en ligne sont sécurisés par <strong>Stripe</strong>. Les données bancaires
-                        ne transitent pas par les serveurs de L'Auberge Espagnole.
+                        ne transitent pas par les serveurs de Casa Steph Iberico.
                     </p>
                 </>
             ),
@@ -147,7 +147,7 @@ export const CGVPage = () => {
                         <strong>Exception :</strong> Le droit de rétractation ne peut être exercé pour les
                         produits alimentaires périssables ou susceptibles de se détériorer rapidement
                         (article L221-28 du Code de la consommation). Cette exception s'applique à la majorité
-                        des produits proposés par L'Auberge Espagnole (charcuteries, fromages frais).
+                        des produits proposés par Casa Steph Iberico (charcuteries, fromages frais).
                     </p>
                     <p className="mt-2">
                         Pour exercer ce droit sur les produits éligibles, le Client doit contacter le Vendeur à :

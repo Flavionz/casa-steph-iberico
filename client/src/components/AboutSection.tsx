@@ -10,7 +10,7 @@ export const AboutSection = () => {
         </h2>
         <div className="w-20 h-0.5 bg-gold mx-auto mb-8"></div>
         <p className="text-gray-300 text-lg leading-relaxed mb-8">
-          Chez Auberge Espagnol, nous parcourons les régions d'Espagne pour
+          Chez Casa Steph Iberico, nous parcourons les régions ibériques pour
           vous rapporter des produits d'exception. Chaque produit est
           sélectionné avec soin directement auprès de producteurs locaux qui
           perpétuent un savoir-faire ancestral.

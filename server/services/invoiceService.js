@@ -1,7 +1,7 @@
 const PDFDocument = require('pdfkit');
 
 const SELLER = {
-    name: "L'Auberge Espagnole",
+    name: "Casa Steph Iberico",
     owner: 'MILHAU Stéphane',
     address: '33 Rue des Chenevières',
     city: '57140 La Maxe',
@@ -60,12 +60,12 @@ const generateInvoicePDF = (order, user, res) => {
     doc.fillColor(GOLD)
        .font('Helvetica-Bold')
        .fontSize(22)
-       .text("L'Auberge Espagnole", 50, 35);
+       .text("Casa Steph Iberico", 50, 35);
 
     doc.fillColor('#FFFFFF')
        .font('Helvetica')
        .fontSize(9)
-       .text('Épicerie fine espagnole', 50, 62)
+       .text('Charcuterie & fromages ibériques premium', 50, 62)
        .text(`${SELLER.address}, ${SELLER.city}`, 50, 75)
        .text(`SIREN : ${SELLER.siren}`, 50, 88)
        .text(SELLER.email, 50, 101);

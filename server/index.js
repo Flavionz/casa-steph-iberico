@@ -45,7 +45,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 
 app.get('/', (req, res) => {
-    res.send('L\'Auberge Espagnole API is running 🇪🇸');
+    res.send('Casa Steph Iberico API is running 🥩');
 });
 
 app.get('/api/categories', async (req, res) => {

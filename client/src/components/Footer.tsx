@@ -14,15 +14,15 @@ export const Footer = () => {
               <div className="flex items-center space-x-3 mb-4">
                 <img
                     src="/logo.png"
-                    alt="L'Auberge Espagnole Logo"
+                    alt="Casa Steph Iberico Logo"
                     className="h-12 w-auto"
                 />
                 <h3 className="font-serif text-xl text-gold">
-                  L'Auberge Espagnole
+                  Casa Steph Iberico
                 </h3>
               </div>
               <p className="text-gray-400 text-sm">
-                L'excellence des produits espagnols, livrés chez vous.
+                Charcuterie & fromages ibériques premium, livrés chez vous.
               </p>
               <p className="text-gray-400 text-sm mt-2">
                 lauberge.espagnole.metz@gmail.com
@@ -71,7 +71,7 @@ export const Footer = () => {
                 Suivez-nous
               </h4>
               <div className="flex space-x-4 mb-6">
-                <a href="https://www.facebook.com/Epicerielaubergeespagnole" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-gray-400 hover:text-gold transition-colors">
+                <a href="https://www.facebook.com/Epicerielaubergeespagnole" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-gray-400 hover:text-gold transition-colors" title="Facebook — lien à mettre à jour">
                   <Facebook size={20} />
                 </a>
                 <a href="https://instagram.com/placeholder" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-gray-400 hover:text-gold transition-colors">
@@ -96,7 +96,7 @@ export const Footer = () => {
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center">
             <p className="text-gray-500 text-xs">
-              &copy; {new Date().getFullYear()} L'Auberge Espagnole made by Flavio Terenzi. Tous droits réservés.
+              &copy; {new Date().getFullYear()} Casa Steph Iberico made by Flavio Terenzi. Tous droits réservés.
             </p>
           </div>
         </div>

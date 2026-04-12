@@ -69,7 +69,7 @@ export const LoginPage: React.FC = () => {
         <div className="relative z-10 w-full max-w-md">
           <Link to="/" className="block text-center mb-8">
             <h1 className="font-serif text-3xl text-white mb-2">
-              L'Auberge Espagnole
+              Casa Steph Iberico
             </h1>
             <div className="w-16 h-0.5 bg-gold mx-auto"></div>
           </Link>
