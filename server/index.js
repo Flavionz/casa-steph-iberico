@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const { PrismaClient } = require('@prisma/client');
 const multer = require('multer');
 require('dotenv').config();
@@ -25,6 +26,9 @@ const allowedOrigins = [
     process.env.CLIENT_URL,
 ].filter(Boolean);
 
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }, // needed for Cloudinary images
+}));
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (mobile apps, curl, Postman)
