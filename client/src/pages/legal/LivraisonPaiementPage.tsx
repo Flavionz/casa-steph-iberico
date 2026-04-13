@@ -71,29 +71,33 @@ export const LivraisonPaiementPage = () => {
             ),
         },
         {
-            title: 'Paiement en ligne par carte bancaire',
+            title: 'Paiement par lien sécurisé (SumUp)',
             content: (
                 <>
                     <p>
-                        Le paiement en ligne est traité par <strong>Stripe</strong>, l'un des prestataires
-                        de paiement les plus sécurisés au monde.
+                        Une fois votre commande confirmée, notre équipe vous envoie un <strong>lien de paiement
+                        sécurisé</strong> via SumUp — le même système utilisé par des milliers de commerçants
+                        en France et en Europe.
+                    </p>
+                    <p className="mt-3">
+                        Concrètement, c'est exactement comme payer chez un commerçant avec votre carte
+                        bancaire sur un terminal de paiement (TPE), mais à distance :
                     </p>
                     <ul className="mt-3 space-y-2 list-disc list-inside">
-                        <li>Cartes acceptées : <strong>Visa, Mastercard</strong></li>
+                        <li>Vous recevez le lien par <strong>email ou SMS / WhatsApp</strong> selon votre préférence</li>
+                        <li>Vous cliquez sur le lien et saisissez vos coordonnées bancaires sur une page sécurisée</li>
+                        <li>Cartes acceptées : <strong>Visa, Mastercard</strong> et la plupart des cartes européennes</li>
                         <li>
-                            <strong>Aucun compte Stripe requis</strong>, vous saisissez simplement votre
-                            numéro de carte, date d'expiration et cryptogramme
+                            Vos données bancaires ne transitent <strong>jamais</strong> par nos serveurs —
+                            elles sont traitées directement et exclusivement par SumUp
                         </li>
-                        <li>
-                            Vos données bancaires ne transitent <strong>jamais</strong> par les serveurs
-                            de Casa Steph Iberico, elles sont traitées directement et exclusivement par Stripe
-                        </li>
-                        <li>Connexion sécurisée HTTPS et chiffrement SSL</li>
-                        <li>Le débit est effectué au moment de la validation de la commande</li>
+                        <li>Connexion sécurisée <strong>HTTPS</strong> et chiffrement de bout en bout</li>
+                        <li>Aucun compte SumUp requis pour payer</li>
                     </ul>
                     <p className="mt-3 text-gray-400 text-xs">
-                        Stripe est certifié PCI-DSS niveau 1, le standard de sécurité le plus élevé
-                        pour le traitement des paiements par carte.
+                        SumUp est un établissement de paiement agréé et régulé par la Banque centrale
+                        d'Irlande, opérant sous passeport européen. Il est certifié PCI-DSS, le standard
+                        de sécurité international pour le traitement des paiements par carte bancaire.
                     </p>
                 </>
             ),
@@ -151,11 +155,11 @@ export const LivraisonPaiementPage = () => {
                         </p>
                     </div>
                     <div>
-                        <p className="font-medium text-white">Mon paiement a été refusé, pourquoi ?</p>
+                        <p className="font-medium text-white">Mon paiement via le lien n'a pas fonctionné, que faire ?</p>
                         <p className="mt-1">
-                            Les refus courants sont dus à des fonds insuffisants, une carte expirée ou une
-                            authentification 3D Secure non validée. Vérifiez votre application bancaire,
-                            une notification de validation peut être en attente.
+                            Les causes courantes sont des fonds insuffisants, une carte expirée ou un délai
+                            d'expiration du lien. Contactez-nous sur WhatsApp au +33 6 89 66 91 15 et nous
+                            vous enverrons un nouveau lien sans problème.
                         </p>
                     </div>
                     <div>

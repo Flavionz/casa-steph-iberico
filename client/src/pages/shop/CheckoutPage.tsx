@@ -378,7 +378,7 @@ export const CheckoutPage = () => {
                                                     <span className="text-2xl">💳</span>
                                                     <span className="text-white font-semibold">Paiement par lien sécurisé</span>
                                                 </div>
-                                                <p className="text-sm text-gray-300">Stéphane vous enverra un lien de paiement après confirmation de votre commande.</p>
+                                                <p className="text-sm text-gray-300">Notre équipe vous enverra un lien de paiement après confirmation de votre commande.</p>
                                             </div>
                                         </label>
 
@@ -400,7 +400,7 @@ export const CheckoutPage = () => {
                                                             onChange={handleChange}
                                                             className="text-gold focus:ring-gold"
                                                         />
-                                                        <span className="ml-3 text-sm text-white">📧 Par email <span className="text-gray-400">(envoi automatique)</span></span>
+                                                        <span className="ml-3 text-sm text-white">📧 Par email</span>
                                                     </label>
                                                     <label className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all ${
                                                         deliveryData.contactPreference === 'phone'
@@ -415,7 +415,7 @@ export const CheckoutPage = () => {
                                                             onChange={handleChange}
                                                             className="text-gold focus:ring-gold"
                                                         />
-                                                        <span className="ml-3 text-sm text-white">📱 Par SMS / WhatsApp <span className="text-gray-400">(sur votre numéro)</span></span>
+                                                        <span className="ml-3 text-sm text-white">📱 Par SMS / WhatsApp <span className="text-gray-400">(sur le numéro indiqué lors de votre inscription)</span></span>
                                                     </label>
                                                 </div>
                                             </div>
