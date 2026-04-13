@@ -1,10 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { loadStripe } from '@stripe/stripe-js';
-import { Elements } from '@stripe/react-stripe-js';
 import { CartContext } from '../../contexts/CartContext';
 import { AuthContext } from '../../contexts/AuthContext';
-import { StripePaymentForm } from '../../components/checkout/StripePaymentForm';
 import { MapPin, CreditCard, Package, AlertCircle, CheckCircle, ChevronLeft, ArrowRight, Info } from 'lucide-react';
 import axios from 'axios';
 import { API_URL } from '../../config/api';
@@ -13,8 +10,6 @@ import {
     getDeliveryFee,
     getZoneLabel,
 } from '../../constants/delivery';
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? '');
 
 export const CheckoutPage = () => {
     const { cartItems, cartTotal, clearCart, cartCount } = useContext(CartContext);
@@ -28,13 +23,11 @@ export const CheckoutPage = () => {
         postalCode: user?.postalCode || '',
         phone: user?.phone || '',
         notes: '',
-        paymentMethod: 'cash',
+        paymentMethod: 'sumup_link',
     });
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [clientSecret, setClientSecret] = useState<string | null>(null);
-    const [isLoadingPayment, setIsLoadingPayment] = useState(false);
     const [orderCount, setOrderCount] = useState<number | null>(null);
 
     // Check if user has previous orders (for cash payment eligibility)
@@ -61,83 +54,6 @@ export const CheckoutPage = () => {
         setError(null);
     };
 
-    // Fetch Stripe clientSecret quando si raggiunge lo step 3 con pagamento carta
-    useEffect(() => {
-        if (currentStep === 3 && deliveryData.paymentMethod === 'card' && !clientSecret) {
-            const fetchClientSecret = async () => {
-                setIsLoadingPayment(true);
-                setError(null);
-                try {
-                    const token = localStorage.getItem('authToken');
-                    const response = await axios.post(
-                        `${API_URL}/payments/create-intent`,
-                        { amount: orderTotal },
-                        { headers: { Authorization: `Bearer ${token}` } }
-                    );
-                    setClientSecret(response.data.clientSecret);
-                } catch {
-                    setError('Impossible de charger le formulaire de paiement. Vérifiez votre connexion.');
-                } finally {
-                    setIsLoadingPayment(false);
-                }
-            };
-            fetchClientSecret();
-        }
-    }, [currentStep, deliveryData.paymentMethod, clientSecret, cartTotal]);
-
-    // Chiamato da StripePaymentForm dopo pagamento confermato
-    const handleStripeSuccess = async (paymentIntentId: string) => {
-        setIsProcessing(true);
-        setError(null);
-        try {
-            const token = localStorage.getItem('authToken');
-            const orderData = {
-                items: JSON.stringify(cartItems.map(item => ({
-                    id: item.id,
-                    name: item.name,
-                    quantity: item.quantity,
-                    price: item.price,
-                }))),
-                total: cartTotal,
-                deliveryAddress: `${deliveryData.address}, ${deliveryData.city}`,
-                postalCode: deliveryData.postalCode,
-                phone: deliveryData.phone,
-                notes: deliveryData.notes,
-                paymentMethod: 'card',
-                paymentIntentId,
-            };
-
-            const response = await axios.post(
-                `${API_URL}/orders/create`,
-                orderData,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            clearCart();
-            navigate('/order-confirmation', {
-                state: {
-                    orderData: {
-                        orderId: response.data.order?.id ?? response.data.id,
-                        total: orderTotal,
-                        items: cartItems.map(item => ({
-                            id: item.id,
-                            name: item.name,
-                            quantity: item.quantity,
-                            price: item.price,
-                        })),
-                        deliveryAddress: `${deliveryData.address}, ${deliveryData.city}`,
-                        postalCode: deliveryData.postalCode,
-                        phone: deliveryData.phone,
-                        paymentMethod: 'card',
-                    },
-                },
-            });
-        } catch {
-            setError('Paiement réussi mais erreur lors de la création de la commande. Contactez le support.');
-        } finally {
-            setIsProcessing(false);
-        }
-    };
 
     const isEligible = ALL_ELIGIBLE_POSTCODES.includes(deliveryData.postalCode);
     const deliveryFee = isEligible ? getDeliveryFee(deliveryData.postalCode, cartTotal) : 0;
@@ -157,12 +73,6 @@ export const CheckoutPage = () => {
     const handleSubmit = async () => {
         setIsProcessing(true);
         setError(null);
-
-        // Il pagamento carta viene gestito da StripePaymentForm — questo handler è solo per cash
-        if (deliveryData.paymentMethod === 'card') {
-            setIsProcessing(false);
-            return;
-        }
 
         try {
             const token = localStorage.getItem('authToken');
@@ -447,6 +357,29 @@ export const CheckoutPage = () => {
                                     </div>
 
                                     <div className="space-y-3">
+                                        {/* Lien SumUp — option par défaut */}
+                                        <label className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                                            deliveryData.paymentMethod === 'sumup_link'
+                                                ? 'border-gold bg-gold/10'
+                                                : 'border-gray-600 hover:border-gray-500'
+                                        }`}>
+                                            <input
+                                                type="radio"
+                                                name="paymentMethod"
+                                                value="sumup_link"
+                                                checked={deliveryData.paymentMethod === 'sumup_link'}
+                                                onChange={handleChange}
+                                                className="mt-1 text-gold focus:ring-gold"
+                                            />
+                                            <div className="ml-3 flex-1">
+                                                <div className="flex items-center space-x-2 mb-1">
+                                                    <span className="text-2xl">💳</span>
+                                                    <span className="text-white font-semibold">Paiement par lien sécurisé</span>
+                                                </div>
+                                                <p className="text-sm text-gray-300">Stéphane vous enverra un lien de paiement après confirmation de votre commande.</p>
+                                            </div>
+                                        </label>
+
                                         {/* Cash — réservé aux clients fidèles */}
                                         {isCashAllowed ? (
                                             <label className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
@@ -481,29 +414,6 @@ export const CheckoutPage = () => {
                                                 </div>
                                             </div>
                                         )}
-
-                                        <label className={`flex items-start p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                                            deliveryData.paymentMethod === 'card'
-                                                ? 'border-gold bg-gold/10'
-                                                : 'border-gray-600 hover:border-gray-500'
-                                        }`}>
-                                            <input
-                                                type="radio"
-                                                name="paymentMethod"
-                                                value="card"
-                                                checked={deliveryData.paymentMethod === 'card'}
-                                                onChange={handleChange}
-                                                className="mt-1 text-gold focus:ring-gold"
-                                            />
-                                            <div className="ml-3 flex-1">
-                                                <div className="flex items-center space-x-2 mb-1">
-                                                    <span className="text-2xl">💳</span>
-                                                    <span className="text-white font-semibold">Paiement en ligne par carte</span>
-                                                </div>
-                                                <p className="text-sm text-gray-300">Visa, Mastercard, American Express</p>
-                                                <p className="text-xs text-gray-300 mt-1">Paiement sécurisé géré par Stripe. Vos données bancaires ne transitent jamais par nos serveurs. Aucun compte Stripe requis.</p>
-                                            </div>
-                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -551,7 +461,20 @@ export const CheckoutPage = () => {
                                         <h2 className="text-2xl font-serif text-white">Mode de Paiement</h2>
                                     </div>
 
-                                    {/* Paiement à la livraison */}
+                                    {deliveryData.paymentMethod === 'sumup_link' && (
+                                        <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+                                            <div className="flex items-center space-x-2 mb-2">
+                                                <span className="text-2xl">💳</span>
+                                                <p className="text-blue-300 text-sm font-semibold">
+                                                    Paiement par lien sécurisé
+                                                </p>
+                                            </div>
+                                            <p className="text-xs text-blue-400">
+                                                Après confirmation de votre commande, Stéphane vous enverra un lien de paiement sécurisé.
+                                            </p>
+                                        </div>
+                                    )}
+
                                     {deliveryData.paymentMethod === 'cash' && (
                                         <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
                                             <div className="flex items-center space-x-2 mb-2">
@@ -561,33 +484,8 @@ export const CheckoutPage = () => {
                                                 </p>
                                             </div>
                                             <p className="text-xs text-green-400">
-                                                Vous pourrez régler en espèces ou par carte bancaire lors de la livraison.
+                                                Vous pourrez régler en espèces lors de la livraison.
                                             </p>
-                                        </div>
-                                    )}
-
-                                    {/* Paiement par carte — Stripe */}
-                                    {deliveryData.paymentMethod === 'card' && (
-                                        <div>
-                                            {isLoadingPayment && (
-                                                <div className="flex items-center gap-3 py-6 text-gray-400">
-                                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gold" />
-                                                    <span className="text-sm">Chargement du formulaire de paiement…</span>
-                                                </div>
-                                            )}
-                                            {!isLoadingPayment && clientSecret && (
-                                                <Elements
-                                                    stripe={stripePromise}
-                                                    options={{ clientSecret, appearance: { theme: 'night' } }}
-                                                >
-                                                    <StripePaymentForm
-                                                        clientSecret={clientSecret}
-                                                        total={cartTotal}
-                                                        onSuccess={handleStripeSuccess}
-                                                        onError={(msg) => setError(msg)}
-                                                    />
-                                                </Elements>
-                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -642,7 +540,7 @@ export const CheckoutPage = () => {
                                     </button>
                                 )}
 
-                                {currentStep === 3 && deliveryData.paymentMethod === 'cash' && (
+                                {currentStep === 3 && (
                                     <button
                                         onClick={handleSubmit}
                                         disabled={isProcessing}

@@ -24,7 +24,7 @@ const createOrder = async (req, res) => {
         });
     }
     try {
-        const { items, total, deliveryAddress, postalCode, phone, notes, paymentMethod, paymentIntentId } = req.body;
+        const { items, total, deliveryAddress, postalCode, phone, notes, paymentMethod } = req.body;
 
         if (!items || items.length === 0) {
             return res.status(400).json({ error: 'Le panier est vide' });
@@ -67,7 +67,7 @@ const createOrder = async (req, res) => {
         }
 
         // Cash uniquement pour clients ayant déjà commandé
-        if (paymentMethod === 'cash' && !paymentIntentId) {
+        if (paymentMethod === 'cash') {
             const previousOrders = await prisma.order.count({
                 where: { userId: req.user.userId }
             });
@@ -94,9 +94,8 @@ const createOrder = async (req, res) => {
                 postalCode,
                 phone: phone || '',
                 notes: notes || '',
-                paymentMethod: paymentMethod || 'cash',
-                paymentStatus: paymentIntentId ? 'paid' : 'pending',
-                ...(paymentIntentId && { paymentIntentId }),
+                paymentMethod: paymentMethod || 'sumup_link',
+                paymentStatus: 'pending',
             }
         });
 
