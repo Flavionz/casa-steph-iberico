@@ -104,7 +104,7 @@ export const OrderConfirmationPage = () => {
                             <div>
                                 <p className="text-gray-400 text-sm mb-1">Mode de paiement</p>
                                 <p className="text-white">
-                                    {orderData.paymentMethod === 'cash' ? 'Espèces à la livraison' : 'Carte bancaire'}
+                                    {orderData.paymentMethod === 'cash' ? 'Espèces à la livraison' : 'Lien de paiement (envoyé par Stéphane)'}
                                 </p>
                             </div>
                         </div>
@@ -118,50 +118,50 @@ export const OrderConfirmationPage = () => {
 
                         <div className="space-y-4">
                             <div className="flex items-start space-x-3">
-                                <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                    1
-                                </div>
+                                <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">1</div>
                                 <div>
                                     <p className="text-white font-medium">Confirmation par email</p>
-                                    <p className="text-gray-300 text-sm">
-                                        Vous recevrez un email de confirmation dans quelques minutes
-                                    </p>
+                                    <p className="text-gray-300 text-sm">Vous recevrez un récapitulatif de votre commande dans quelques minutes.</p>
                                 </div>
                             </div>
 
+                            {orderData.paymentMethod !== 'cash' && (
+                                <div className="flex items-start space-x-3">
+                                    <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">2</div>
+                                    <div>
+                                        <p className="text-white font-medium">Lien de paiement</p>
+                                        <p className="text-gray-300 text-sm">Stéphane vous enverra un lien de paiement sécurisé dès que votre commande sera validée.</p>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex items-start space-x-3">
                                 <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                    2
+                                    {orderData.paymentMethod !== 'cash' ? '3' : '2'}
                                 </div>
                                 <div>
                                     <p className="text-white font-medium">Préparation de votre commande</p>
-                                    <p className="text-gray-300 text-sm">
-                                        Nous préparons vos produits avec soin
-                                    </p>
+                                    <p className="text-gray-300 text-sm">Vos produits sont préparés avec soin après confirmation du paiement.</p>
                                 </div>
                             </div>
 
                             <div className="flex items-start space-x-3">
                                 <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                    3
+                                    {orderData.paymentMethod !== 'cash' ? '4' : '3'}
                                 </div>
                                 <div>
-                                    <p className="text-white font-medium">Notification de livraison</p>
-                                    <p className="text-gray-300 text-sm">
-                                        Vous recevrez un email avec le créneau horaire de livraison
-                                    </p>
+                                    <p className="text-white font-medium">Créneau de livraison</p>
+                                    <p className="text-gray-300 text-sm">Vous recevrez un email avec la date et le créneau horaire de livraison.</p>
                                 </div>
                             </div>
 
                             <div className="flex items-start space-x-3">
                                 <div className="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                    4
+                                    {orderData.paymentMethod !== 'cash' ? '5' : '4'}
                                 </div>
                                 <div>
                                     <p className="text-white font-medium">Livraison à domicile</p>
-                                    <p className="text-gray-300 text-sm">
-                                        Nous livrons directement à votre adresse
-                                    </p>
+                                    <p className="text-gray-300 text-sm">Stéphane livre directement à votre adresse.</p>
                                 </div>
                             </div>
                         </div>

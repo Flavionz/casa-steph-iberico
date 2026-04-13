@@ -24,7 +24,7 @@ const createOrder = async (req, res) => {
         });
     }
     try {
-        const { items, total, deliveryAddress, postalCode, phone, notes, paymentMethod } = req.body;
+        const { items, total, deliveryAddress, postalCode, phone, notes, paymentMethod, contactPreference } = req.body;
 
         if (!items || items.length === 0) {
             return res.status(400).json({ error: 'Le panier est vide' });
@@ -96,6 +96,7 @@ const createOrder = async (req, res) => {
                 notes: notes || '',
                 paymentMethod: paymentMethod || 'sumup_link',
                 paymentStatus: 'pending',
+                contactPreference: contactPreference || 'email',
             }
         });
 

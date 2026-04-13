@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { AdminLayout } from '../../components/admin/AdminLayout';
 import {
     Package, Clock, CheckCircle, XCircle, Truck, Mail,
-    User, MapPin, X, ChevronRight, StickyNote
+    User, MapPin, X, ChevronRight, StickyNote, Link, Send, Phone, Euro
 } from 'lucide-react';
 import axios from 'axios';
 import { API_URL } from '../../config/api';
@@ -17,6 +17,9 @@ interface Order {
     phone: string;
     notes: string | null;
     paymentMethod: string;
+    contactPreference: string;
+    sumupLink: string | null;
+    sumupLinkSentAt: string | null;
     deliveryTimeSlot: string | null;
     deliveryDate: string | null;
     createdAt: string;
@@ -30,11 +33,13 @@ interface Order {
 }
 
 const STATUS_CONFIG = {
-    en_attente:          { label: 'En attente',       color: 'bg-yellow-500', badge: 'bg-yellow-100 text-yellow-800', icon: Clock },
-    en_preparation:      { label: 'En préparation',   color: 'bg-blue-500',   badge: 'bg-blue-100 text-blue-800',    icon: Package },
-    pret_pour_livraison: { label: 'Prêt à livrer',    color: 'bg-green-500',  badge: 'bg-green-100 text-green-800',  icon: Truck },
-    livre:               { label: 'Livré',             color: 'bg-gray-500',   badge: 'bg-gray-100 text-gray-700',    icon: CheckCircle },
-    annule:              { label: 'Annulé',            color: 'bg-red-500',    badge: 'bg-red-100 text-red-800',      icon: XCircle },
+    en_attente:          { label: 'En attente',       color: 'bg-yellow-500',  badge: 'bg-yellow-100 text-yellow-800',  icon: Clock },
+    lien_envoye:         { label: 'Lien envoyé',      color: 'bg-purple-500',  badge: 'bg-purple-100 text-purple-800',  icon: Send },
+    paye:                { label: 'Payé',              color: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-800', icon: Euro },
+    en_preparation:      { label: 'En préparation',   color: 'bg-blue-500',    badge: 'bg-blue-100 text-blue-800',      icon: Package },
+    pret_pour_livraison: { label: 'Prêt à livrer',    color: 'bg-green-500',   badge: 'bg-green-100 text-green-800',    icon: Truck },
+    livre:               { label: 'Livré',             color: 'bg-gray-500',    badge: 'bg-gray-100 text-gray-700',      icon: CheckCircle },
+    annule:              { label: 'Annulé',            color: 'bg-red-500',     badge: 'bg-red-100 text-red-800',        icon: XCircle },
 } as const;
 
 const TIME_SLOTS = ['09:00 - 11:00', '11:00 - 13:00', '14:00 - 16:00', '16:00 - 18:00', '18:00 - 20:00'];
@@ -61,6 +66,8 @@ export const ManageOrdersPage = () => {
     const [showDeliveryModal, setShowDeliveryModal] = useState(false);
     const [deliveryDate, setDeliveryDate] = useState('');
     const [deliveryTime, setDeliveryTime] = useState('');
+    const [sumupLinkInput, setSumupLinkInput] = useState('');
+    const [isSendingLink, setIsSendingLink] = useState(false);
 
     useEffect(() => { fetchOrders(); }, [selectedStatus]);
 
@@ -148,6 +155,34 @@ export const ManageOrdersPage = () => {
             setSelectedOrder(prev => prev ? { ...prev, status: 'livre' } : null);
         } catch (error) {
             console.error('Failed to mark as delivered:', error);
+        }
+    };
+
+    const handleSendPaymentLink = async () => {
+        if (!selectedOrder || !sumupLinkInput.startsWith('http')) {
+            alert('Veuillez coller un lien de paiement valide (commençant par http)');
+            return;
+        }
+        setIsSendingLink(true);
+        try {
+            const token = localStorage.getItem('authToken');
+            const res = await axios.post(
+                `${API_URL}/orders/${selectedOrder.id}/payment-link`,
+                { sumupLink: sumupLinkInput },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            alert(res.data.message);
+            setSumupLinkInput('');
+            await fetchOrders();
+            setSelectedOrder(prev => prev
+                ? { ...prev, status: 'lien_envoye', sumupLink: sumupLinkInput, sumupLinkSentAt: new Date().toISOString() }
+                : null
+            );
+        } catch (error) {
+            console.error('Failed to send payment link:', error);
+            alert('Erreur lors de l\'envoi du lien');
+        } finally {
+            setIsSendingLink(false);
         }
     };
 
@@ -347,6 +382,74 @@ export const ManageOrdersPage = () => {
                                         <StickyNote size={14} className="text-yellow-600 flex-shrink-0 mt-0.5" />
                                         {selectedOrder.notes}
                                     </p>
+                                </section>
+                            )}
+
+                            {/* Lien de paiement SumUp */}
+                            {selectedOrder.paymentMethod === 'sumup_link' && (
+                                <section>
+                                    <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Lien de paiement</h4>
+
+                                    {/* Préférence de contact */}
+                                    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium mb-3 ${
+                                        selectedOrder.contactPreference === 'email'
+                                            ? 'bg-blue-50 text-blue-700'
+                                            : 'bg-green-50 text-green-700'
+                                    }`}>
+                                        {selectedOrder.contactPreference === 'email'
+                                            ? <><Mail size={14} /> Envoi automatique par email</>
+                                            : <><Phone size={14} /> À envoyer manuellement par SMS / WhatsApp</>
+                                        }
+                                    </div>
+
+                                    {/* Lien déjà envoyé */}
+                                    {selectedOrder.sumupLinkSentAt && (
+                                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-3">
+                                            <p className="text-xs text-purple-600 font-semibold mb-1">
+                                                Lien envoyé le {new Date(selectedOrder.sumupLinkSentAt).toLocaleDateString('fr-FR')} à {new Date(selectedOrder.sumupLinkSentAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+                                            </p>
+                                            {selectedOrder.sumupLink && (
+                                                <a
+                                                    href={selectedOrder.sumupLink}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs text-purple-500 hover:underline break-all flex items-center gap-1"
+                                                >
+                                                    <Link size={11} /> {selectedOrder.sumupLink}
+                                                </a>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Si contact phone : afficher le numéro en évidence */}
+                                    {selectedOrder.contactPreference === 'phone' && selectedOrder.phone && (
+                                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3 flex items-center gap-2">
+                                            <Phone size={14} className="text-green-600 flex-shrink-0" />
+                                            <div>
+                                                <p className="text-xs text-green-600 font-semibold">Numéro du client</p>
+                                                <p className="text-sm font-bold text-green-800">{selectedOrder.phone}</p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Input lien */}
+                                    <div className="space-y-2">
+                                        <input
+                                            type="url"
+                                            value={sumupLinkInput}
+                                            onChange={(e) => setSumupLinkInput(e.target.value)}
+                                            placeholder="Collez le lien SumUp ici..."
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-purple-400"
+                                        />
+                                        <button
+                                            onClick={handleSendPaymentLink}
+                                            disabled={isSendingLink || !sumupLinkInput}
+                                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <Send size={15} />
+                                            {isSendingLink ? 'Envoi en cours...' : selectedOrder.contactPreference === 'email' ? 'Envoyer par email' : 'Enregistrer le lien'}
+                                        </button>
+                                    </div>
                                 </section>
                             )}
 

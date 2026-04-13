@@ -24,6 +24,7 @@ export const CheckoutPage = () => {
         phone: user?.phone || '',
         notes: '',
         paymentMethod: 'sumup_link',
+        contactPreference: 'email',
     });
 
     const [isProcessing, setIsProcessing] = useState(false);
@@ -89,6 +90,7 @@ export const CheckoutPage = () => {
                 phone: deliveryData.phone,
                 notes: deliveryData.notes,
                 paymentMethod: deliveryData.paymentMethod,
+                contactPreference: deliveryData.paymentMethod === 'sumup_link' ? deliveryData.contactPreference : 'email',
             };
 
             const response = await axios.post(
@@ -353,7 +355,7 @@ export const CheckoutPage = () => {
                                 <div className="bg-[#2C2C2C] rounded-lg p-6 border border-gray-700">
                                     <div className="flex items-center space-x-3 mb-6 pb-4 border-b border-gray-700">
                                         <CreditCard size={24} className="text-gold" />
-                                        <h2 className="text-2xl font-serif text-white">Mode de Paiement</h2>
+                                        <h2 className="text-2xl font-serif text-white">Paiement</h2>
                                     </div>
 
                                     <div className="space-y-3">
@@ -379,6 +381,45 @@ export const CheckoutPage = () => {
                                                 <p className="text-sm text-gray-300">Stéphane vous enverra un lien de paiement après confirmation de votre commande.</p>
                                             </div>
                                         </label>
+
+                                        {/* Préférence de contact pour le lien de paiement */}
+                                        {deliveryData.paymentMethod === 'sumup_link' && (
+                                            <div className="mt-4 pt-4 border-t border-gray-700">
+                                                <p className="text-sm font-medium text-gray-300 mb-3">Comment souhaitez-vous recevoir votre lien de paiement ?</p>
+                                                <div className="space-y-2">
+                                                    <label className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                                                        deliveryData.contactPreference === 'email'
+                                                            ? 'border-gold bg-gold/10'
+                                                            : 'border-gray-600 hover:border-gray-500'
+                                                    }`}>
+                                                        <input
+                                                            type="radio"
+                                                            name="contactPreference"
+                                                            value="email"
+                                                            checked={deliveryData.contactPreference === 'email'}
+                                                            onChange={handleChange}
+                                                            className="text-gold focus:ring-gold"
+                                                        />
+                                                        <span className="ml-3 text-sm text-white">📧 Par email <span className="text-gray-400">(envoi automatique)</span></span>
+                                                    </label>
+                                                    <label className={`flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all ${
+                                                        deliveryData.contactPreference === 'phone'
+                                                            ? 'border-gold bg-gold/10'
+                                                            : 'border-gray-600 hover:border-gray-500'
+                                                    }`}>
+                                                        <input
+                                                            type="radio"
+                                                            name="contactPreference"
+                                                            value="phone"
+                                                            checked={deliveryData.contactPreference === 'phone'}
+                                                            onChange={handleChange}
+                                                            className="text-gold focus:ring-gold"
+                                                        />
+                                                        <span className="ml-3 text-sm text-white">📱 Par SMS / WhatsApp <span className="text-gray-400">(sur votre numéro)</span></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        )}
 
                                         {/* Cash — réservé aux clients fidèles */}
                                         {isCashAllowed ? (

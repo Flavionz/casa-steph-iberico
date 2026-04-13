@@ -145,7 +145,9 @@ const sendOrderConfirmationEmail = async (order, user) => {
     `).join('');
 
     const orderNumber = `AE-${order.id.toString().padStart(6, '0')}`;
-    const paymentLabel = order.paymentMethod === 'cash' ? 'Paiement à la livraison' : 'Carte bancaire (Stripe)';
+    const paymentLabel = order.paymentMethod === 'cash'
+        ? 'Espèces à la livraison'
+        : 'Lien de paiement (envoyé par Stéphane)';
 
     const mailOptions = {
         from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
@@ -277,10 +279,70 @@ const sendWelcomeEmail = async (user) => {
     }
 };
 
+const sendPaymentLinkEmail = async (order, user, sumupLink) => {
+    const orderNumber = `AE-${order.id.toString().padStart(6, '0')}`;
+
+    const mailOptions = {
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
+        to: user.email,
+        subject: `Votre lien de paiement — ${orderNumber}`,
+        html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background-color: #1a1714; padding: 30px; text-align: center;">
+          <h1 style="color: #C9A66B; margin: 0; font-size: 24px;">Casa Steph Iberico</h1>
+          <p style="color: #888; margin: 5px 0 0 0; font-size: 13px;">Charcuterie & fromages ibériques · Metz</p>
+        </div>
+
+        <div style="padding: 40px 30px;">
+          <h2 style="color: #1a1714;">Votre lien de paiement est prêt${user.firstName ? ', ' + user.firstName : ''} !</h2>
+
+          <p>Votre commande <strong>${orderNumber}</strong> est confirmée. Vous pouvez maintenant procéder au paiement en cliquant sur le bouton ci-dessous :</p>
+
+          <div style="background-color: #f9f6f2; border-left: 4px solid #C9A66B; padding: 20px; margin: 25px 0; border-radius: 0 8px 8px 0;">
+            <p style="margin: 0 0 6px 0;"><strong>📋 Commande :</strong> ${orderNumber}</p>
+            <p style="margin: 0;"><strong>💰 Montant total :</strong> ${order.total.toFixed(2)} €</p>
+          </div>
+
+          <div style="text-align: center; margin: 35px 0;">
+            <a href="${sumupLink}"
+               style="background-color: #C9A66B; color: #1a1714; padding: 16px 40px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 16px;">
+              Payer ma commande — ${order.total.toFixed(2)} €
+            </a>
+          </div>
+
+          <p style="color: #888; font-size: 13px;">Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br>
+            <a href="${sumupLink}" style="color: #C9A66B; word-break: break-all;">${sumupLink}</a>
+          </p>
+
+          <p style="margin-top: 30px; color: #666; font-size: 14px;">
+            Des questions ? Contactez Stéphane par WhatsApp au <strong>+33 6 89 66 91 15</strong> ou par email à <a href="mailto:lauberge.espagnole.metz@gmail.com" style="color: #C9A66B;">lauberge.espagnole.metz@gmail.com</a>.
+          </p>
+        </div>
+
+        <div style="background-color: #f5f5f5; padding: 20px 30px; text-align: center;">
+          <p style="margin: 0; font-size: 12px; color: #999;">
+            Casa Steph Iberico — Metz, France
+          </p>
+        </div>
+      </div>
+    `,
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`✅ Payment link email sent to ${user.email}`);
+        return { success: true };
+    } catch (error) {
+        console.error('❌ Payment link email failed:', error);
+        return { success: false, error };
+    }
+};
+
 module.exports = {
     sendOrderReadyEmail,
     sendOrderDeliveredEmail,
     sendPasswordResetEmail,
     sendWelcomeEmail,
     sendOrderConfirmationEmail,
+    sendPaymentLinkEmail,
 };

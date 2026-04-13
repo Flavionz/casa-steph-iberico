@@ -11,7 +11,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const orderRoutes = require('./routes/orders');
 const paymentRoutes = require('./routes/payments');
-const { sendOrderReadyEmail, sendOrderDeliveredEmail } = require('./services/emailService');
+const { sendOrderReadyEmail, sendOrderDeliveredEmail, sendPaymentLinkEmail } = require('./services/emailService');
 const { authenticate, isAdmin } = require('./middleware/authMiddleware');
 
 const app = express();
@@ -477,7 +477,7 @@ app.put('/api/orders/:id/status', authenticate, isAdmin, async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        const validStatuses = ['en_attente', 'en_preparation', 'pret_pour_livraison', 'livre', 'annule'];
+        const validStatuses = ['en_attente', 'lien_envoye', 'paye', 'en_preparation', 'pret_pour_livraison', 'livre', 'annule'];
 
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ error: 'Statut invalide' });
@@ -533,6 +533,51 @@ app.put('/api/orders/:id/delivery', authenticate, isAdmin, async (req, res) => {
     } catch (error) {
         console.error('Failed to set delivery time:', error);
         res.status(500).json({ error: 'Erreur lors de la définition du créneau' });
+    }
+});
+
+app.post('/api/orders/:id/payment-link', authenticate, isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { sumupLink } = req.body;
+
+        if (!sumupLink || !sumupLink.startsWith('http')) {
+            return res.status(400).json({ error: 'Lien de paiement invalide' });
+        }
+
+        const order = await prisma.order.findUnique({
+            where: { id: parseInt(id) },
+            include: { user: true }
+        });
+
+        if (!order) {
+            return res.status(404).json({ error: 'Commande non trouvée' });
+        }
+
+        const updatedOrder = await prisma.order.update({
+            where: { id: parseInt(id) },
+            data: {
+                sumupLink,
+                sumupLinkSentAt: new Date(),
+                status: 'lien_envoye',
+                updatedAt: new Date(),
+            }
+        });
+
+        if (order.contactPreference === 'email' && order.user) {
+            await sendPaymentLinkEmail(order, order.user, sumupLink);
+        }
+
+        res.json({
+            message: order.contactPreference === 'email'
+                ? 'Lien enregistré et email envoyé au client'
+                : 'Lien enregistré — envoyez-le manuellement au client',
+            order: updatedOrder,
+            contactPreference: order.contactPreference,
+        });
+    } catch (error) {
+        console.error('Failed to send payment link:', error);
+        res.status(500).json({ error: 'Erreur lors de l\'envoi du lien' });
     }
 });
 
