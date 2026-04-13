@@ -174,7 +174,7 @@ const updateOrderStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        const validStatuses = ['en_attente', 'en_preparation', 'pret_pour_livraison', 'livre', 'annule'];
+        const validStatuses = ['en_attente', 'lien_envoye', 'paye', 'en_preparation', 'pret_pour_livraison', 'livre', 'annule'];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ error: 'Statut invalide' });
         }

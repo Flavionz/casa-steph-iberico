@@ -40,6 +40,10 @@ export const UserOrders = () => {
         switch (status) {
             case 'en_attente':
                 return { bg: 'bg-yellow-900/20', border: 'border-yellow-500', text: 'text-yellow-300', label: 'En attente', icon: Clock };
+            case 'lien_envoye':
+                return { bg: 'bg-purple-900/20', border: 'border-purple-500', text: 'text-purple-300', label: 'Lien de paiement envoyé', icon: Package };
+            case 'paye':
+                return { bg: 'bg-emerald-900/20', border: 'border-emerald-500', text: 'text-emerald-300', label: 'Payé', icon: CheckCircle };
             case 'en_preparation':
                 return { bg: 'bg-blue-900/20', border: 'border-blue-500', text: 'text-blue-300', label: 'En préparation', icon: Package };
             case 'pret_pour_livraison':

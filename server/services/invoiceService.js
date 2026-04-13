@@ -176,7 +176,7 @@ const generateInvoicePDF = (order, user, res) => {
     // ── Mode de paiement ─────────────────────────────────────────────────────────
     const paymentLabel = order.paymentMethod === 'cash'
         ? 'Paiement à la livraison (espèces)'
-        : 'Paiement en ligne par carte bancaire (Stripe)';
+        : 'Paiement par lien sécurisé';
 
     doc.fillColor(GRAY).font('Helvetica').fontSize(9)
        .text(`Mode de paiement : ${paymentLabel}`, 50, y);
