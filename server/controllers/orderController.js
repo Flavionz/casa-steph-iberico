@@ -24,7 +24,7 @@ const createOrder = async (req, res) => {
         });
     }
     try {
-        const { items, total, deliveryAddress, postalCode, phone, notes, paymentMethod, paymentIntentId } = req.body;
+        const { items, total, deliveryAddress, postalCode, phone, notes, paymentMethod, contactPreference } = req.body;
 
         if (!items || items.length === 0) {
             return res.status(400).json({ error: 'Le panier est vide' });
@@ -67,7 +67,7 @@ const createOrder = async (req, res) => {
         }
 
         // Cash uniquement pour clients ayant déjà commandé
-        if (paymentMethod === 'cash' && !paymentIntentId) {
+        if (paymentMethod === 'cash') {
             const previousOrders = await prisma.order.count({
                 where: { userId: req.user.userId }
             });
@@ -94,9 +94,9 @@ const createOrder = async (req, res) => {
                 postalCode,
                 phone: phone || '',
                 notes: notes || '',
-                paymentMethod: paymentMethod || 'cash',
-                paymentStatus: paymentIntentId ? 'paid' : 'pending',
-                ...(paymentIntentId && { paymentIntentId }),
+                paymentMethod: paymentMethod || 'sumup_link',
+                paymentStatus: 'pending',
+                contactPreference: contactPreference || 'email',
             }
         });
 
@@ -174,7 +174,7 @@ const updateOrderStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        const validStatuses = ['en_attente', 'en_preparation', 'pret_pour_livraison', 'livre', 'annule'];
+        const validStatuses = ['en_attente', 'lien_envoye', 'paye', 'en_preparation', 'pret_pour_livraison', 'livre', 'annule'];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ error: 'Statut invalide' });
         }

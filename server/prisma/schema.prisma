@@ -42,12 +42,15 @@ model Order {
   paymentMethod    String   @default("cash")
   paymentStatus    String   @default("pending")
   deliveryFee      Float    @default(0)
-  paymentIntentId  String?
-  deliveryTimeSlot String?
-  deliveryDate     String?
-  invoiceNumber    String?  @unique
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  paymentIntentId   String?
+  contactPreference String   @default("email")
+  sumupLink         String?
+  sumupLinkSentAt   DateTime?
+  deliveryTimeSlot  String?
+  deliveryDate      String?
+  invoiceNumber     String?  @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model Category {

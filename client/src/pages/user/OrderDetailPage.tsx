@@ -39,6 +39,10 @@ const getStatusBadge = (status: string) => {
     switch (status) {
         case 'en_attente':
             return { bg: 'bg-yellow-900/20', border: 'border-yellow-500', text: 'text-yellow-300', label: 'En attente', icon: Clock };
+        case 'lien_envoye':
+            return { bg: 'bg-purple-900/20', border: 'border-purple-500', text: 'text-purple-300', label: 'Lien de paiement envoyé', icon: Package };
+        case 'paye':
+            return { bg: 'bg-emerald-900/20', border: 'border-emerald-500', text: 'text-emerald-300', label: 'Payé', icon: CheckCircle };
         case 'en_preparation':
             return { bg: 'bg-blue-900/20', border: 'border-blue-500', text: 'text-blue-300', label: 'En préparation', icon: Package };
         case 'pret_pour_livraison':
@@ -165,7 +169,7 @@ export const OrderDetailPage = () => {
                     {order.paymentMethod && (
                         <div>
                             <p className="text-xs uppercase tracking-wider text-gray-500 mb-1">Paiement</p>
-                            <p className="text-white capitalize">{order.paymentMethod === 'cash' ? 'Espèces à la livraison' : 'Carte bancaire (Stripe)'}</p>
+                            <p className="text-white capitalize">{order.paymentMethod === 'cash' ? 'Espèces à la livraison' : 'Lien de paiement (envoyé par Stéphane)'}</p>
                         </div>
                     )}
                 </div>
