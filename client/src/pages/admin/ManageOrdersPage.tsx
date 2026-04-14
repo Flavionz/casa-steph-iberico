@@ -439,7 +439,7 @@ export const ManageOrdersPage = () => {
                                             value={sumupLinkInput}
                                             onChange={(e) => setSumupLinkInput(e.target.value)}
                                             placeholder="Collez le lien SumUp ici..."
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-purple-400"
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:border-purple-400"
                                         />
                                         <button
                                             onClick={handleSendPaymentLink}
