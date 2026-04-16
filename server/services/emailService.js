@@ -17,7 +17,7 @@ const sendOrderReadyEmail = async (order, user) => {
     ).join('\n');
 
     const mailOptions = {
-        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <casastephiberico@gmail.com>',
         to: user.email,
         subject: `Votre commande #${order.id} est prête! 🎉`,
         html: `
@@ -48,7 +48,7 @@ ${itemsList}
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
         
         <p style="font-size: 12px; color: #666;">
-          Pour toute question, contactez-nous à contact@auberge-espagnol.fr
+          Pour toute question, contactez-nous à casastephiberico@gmail.com
         </p>
       </div>
     `,
@@ -66,7 +66,7 @@ ${itemsList}
 
 const sendOrderDeliveredEmail = async (order, user) => {
     const mailOptions = {
-        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <casastephiberico@gmail.com>',
         to: user.email,
         subject: `Commande #${order.id} livrée - Merci! 🎉`,
         html: `
@@ -102,7 +102,7 @@ const sendOrderDeliveredEmail = async (order, user) => {
 
 const sendPasswordResetEmail = async (user, resetLink) => {
     const mailOptions = {
-        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <casastephiberico@gmail.com>',
         to: user.email,
         subject: 'Réinitialisation de votre mot de passe',
         html: `
@@ -119,7 +119,7 @@ const sendPasswordResetEmail = async (user, resetLink) => {
         </div>
         <p style="color: #888; font-size: 13px;">Si vous n'avez pas fait cette demande, ignorez cet email. Votre mot de passe ne sera pas modifié.</p>
         <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-        <p style="font-size: 12px; color: #666;">Casa Steph Iberico — lauberge.espagnole.metz@gmail.com</p>
+        <p style="font-size: 12px; color: #666;">Casa Steph Iberico — casastephiberico@gmail.com</p>
       </div>
     `,
     };
@@ -150,7 +150,7 @@ const sendOrderConfirmationEmail = async (order, user) => {
         : 'Lien de paiement (envoyé par Stéphane)';
 
     const mailOptions = {
-        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <casastephiberico@gmail.com>',
         to: user.email,
         subject: `Confirmation de commande ${orderNumber}`,
         html: `
@@ -201,14 +201,14 @@ const sendOrderConfirmationEmail = async (order, user) => {
           </table>
 
           <p style="margin-top: 30px; color: #666; font-size: 14px;">
-            Des questions ? Contactez-nous par WhatsApp au <strong>+33 6 89 66 91 15</strong> ou par email à <a href="mailto:lauberge.espagnole.metz@gmail.com" style="color: #C9A66B;">lauberge.espagnole.metz@gmail.com</a>.
+            Des questions ? Contactez-nous par WhatsApp au <strong>+33 6 89 66 91 15</strong> ou par email à <a href="mailto:casastephiberico@gmail.com" style="color: #C9A66B;">casastephiberico@gmail.com</a>.
           </p>
         </div>
 
         <div style="background-color: #f5f5f5; padding: 20px 30px; text-align: center;">
           <p style="margin: 0; font-size: 12px; color: #999;">
             Casa Steph Iberico — Metz, France<br>
-            <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}" style="color: #C9A66B; text-decoration: none;">auberge-ecommerce.vercel.app</a>
+            <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}" style="color: #C9A66B; text-decoration: none;">casasteph.fr</a>
           </p>
         </div>
       </div>
@@ -227,7 +227,7 @@ const sendOrderConfirmationEmail = async (order, user) => {
 
 const sendWelcomeEmail = async (user) => {
     const mailOptions = {
-        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <casastephiberico@gmail.com>',
         to: user.email,
         subject: 'Bienvenue chez Casa Steph Iberico !',
         html: `
@@ -255,14 +255,14 @@ const sendWelcomeEmail = async (user) => {
           </div>
 
           <p style="color: #666; font-size: 14px;">
-            Des questions ? Contactez-nous par WhatsApp au <strong>+33 6 89 66 91 15</strong> ou par email à <a href="mailto:lauberge.espagnole.metz@gmail.com" style="color: #C9A66B;">lauberge.espagnole.metz@gmail.com</a>.
+            Des questions ? Contactez-nous par WhatsApp au <strong>+33 6 89 66 91 15</strong> ou par email à <a href="mailto:casastephiberico@gmail.com" style="color: #C9A66B;">casastephiberico@gmail.com</a>.
           </p>
         </div>
 
         <div style="background-color: #f5f5f5; padding: 20px 30px; text-align: center;">
           <p style="margin: 0; font-size: 12px; color: #999;">
             Casa Steph Iberico — Metz, France<br>
-            <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}" style="color: #C9A66B; text-decoration: none;">auberge-ecommerce.vercel.app</a>
+            <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}" style="color: #C9A66B; text-decoration: none;">casasteph.fr</a>
           </p>
         </div>
       </div>
@@ -301,7 +301,7 @@ const sendPaymentLinkEmail = async (order, user, sumupLink) => {
     `).join('') : `<tr><td colspan="3" style="padding: 10px 0; color: #999; font-style: italic;">Détail non disponible</td></tr>`;
 
     const mailOptions = {
-        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <contact@auberge-espagnol.fr>',
+        from: process.env.SMTP_FROM || '"Casa Steph Iberico" <casastephiberico@gmail.com>',
         to: user.email,
         subject: `Votre lien de paiement sécurisé (${orderNumber})`,
         html: `
@@ -380,7 +380,7 @@ const sendPaymentLinkEmail = async (order, user, sumupLink) => {
 
           <p style="color: #666; font-size: 14px;">
             Des questions ? Contactez-nous par WhatsApp au <strong>+33 6 89 66 91 15</strong> ou par email à
-            <a href="mailto:lauberge.espagnole.metz@gmail.com" style="color: #C9A66B;">lauberge.espagnole.metz@gmail.com</a>.
+            <a href="mailto:casastephiberico@gmail.com" style="color: #C9A66B;">casastephiberico@gmail.com</a>.
           </p>
 
           <p style="margin-top: 30px; color: #444; font-size: 14px;">
@@ -393,7 +393,7 @@ const sendPaymentLinkEmail = async (order, user, sumupLink) => {
         <div style="background-color: #f5f5f5; padding: 20px 30px; text-align: center;">
           <p style="margin: 0; font-size: 12px; color: #999;">
             Casa Steph Iberico, Metz, France<br>
-            <a href="mailto:lauberge.espagnole.metz@gmail.com" style="color: #C9A66B; text-decoration: none;">lauberge.espagnole.metz@gmail.com</a>
+            <a href="mailto:casastephiberico@gmail.com" style="color: #C9A66B; text-decoration: none;">casastephiberico@gmail.com</a>
           </p>
         </div>
 

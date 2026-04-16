@@ -12,7 +12,7 @@ export const MentionsLegalesPage = () => {
             title: 'Éditeur du site',
             content: (
                 <>
-                    <p>Le site <strong>auberge-espagnol.fr</strong> est édité par :</p>
+                    <p>Le site <strong>casasteph.fr</strong> est édité par :</p>
                     <ul className="mt-2 space-y-1 list-none">
                         <li><span className="text-gray-400">Nom commercial :</span> Casa Steph Iberico</li>
                         <li><span className="text-gray-400">Titulaire :</span> MILHAU Stéphane, Maurice, Robert</li>
@@ -21,7 +21,7 @@ export const MentionsLegalesPage = () => {
                         <li><span className="text-gray-400">SIREN :</span> 519 942 924</li>
                         <li><span className="text-gray-400">N° RCS :</span> 519 942 924 R.C.S. Metz</li>
                         <li><span className="text-gray-400">TVA :</span> TVA non applicable — art. 293 B du CGI</li>
-                        <li><span className="text-gray-400">Email :</span> lauberge.espagnole.metz@gmail.com</li>
+                        <li><span className="text-gray-400">Email :</span> casastephiberico@gmail.com</li>
                         <li><span className="text-gray-400">Téléphone :</span> +33 6 89 66 91 15</li>
                         <li><span className="text-gray-400">Directeur de publication :</span> MILHAU Stéphane</li>
                     </ul>

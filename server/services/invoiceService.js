@@ -6,7 +6,7 @@ const SELLER = {
     address: '33 Rue des Chenevières',
     city: '57140 La Maxe',
     siren: '519 942 924',
-    email: 'lauberge.espagnole.metz@gmail.com',
+    email: 'casastephiberico@gmail.com',
     phone: '+33 6 89 66 91 15',
 };
 

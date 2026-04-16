@@ -174,7 +174,7 @@ export const LivraisonPaiementPage = () => {
                         <p className="font-medium text-white">Un produit est manquant ou abîmé à la livraison ?</p>
                         <p className="mt-1">
                             Signalez-le immédiatement à notre livreur lors de la livraison, ou contactez-nous
-                            à <span className="text-gold">lauberge.espagnole.metz@gmail.com</span> dans
+                            à <span className="text-gold">casastephiberico@gmail.com</span> dans
                             les 24h. Nous trouverons une solution.
                         </p>
                     </div>
